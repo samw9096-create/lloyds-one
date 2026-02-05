@@ -146,7 +146,28 @@ function initDealDash() {
 }
 
 function initMoneyMinutes() {
-  // Static page for now
+  const reels = document.querySelectorAll(".reel-card");
+  reels.forEach((reel) => {
+    const video = reel.querySelector("video");
+    const btn = reel.querySelector(".reel-sound");
+    if (!video || !btn) return;
+
+    const updateIcon = () => {
+      btn.textContent = video.muted ? "🔇" : "🔊";
+    };
+
+    btn.onclick = async () => {
+      video.muted = !video.muted;
+      try {
+        await video.play();
+      } catch {
+        // ignore autoplay restrictions
+      }
+      updateIcon();
+    };
+
+    updateIcon();
+  });
 }
 
 function initSettings() {
