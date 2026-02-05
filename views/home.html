@@ -1,0 +1,79 @@
+<div class="container">
+  <header class="top-bar">
+    <div class="brand">
+      <img class="brand-logo" src="./one-logo.png" alt="One" />
+    </div>
+    <button class="avatar-btn" aria-label="Profile"></button>
+  </header>
+
+  <h1>Good Morning, Nathaniel!</h1>
+
+  <section class="balance-card">
+    <div class="balance-title">LLOYDS</div>
+    <div class="balance-amount">£123.67</div>
+    <div class="balance-meta">12-34-56 • 12345678</div>
+    <button class="balance-chip" type="button" aria-label="Card">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Zm0 3h16V9H4Z"/></svg>
+    </button>
+  </section>
+
+  <div class="action-row">
+    <button class="action-btn" type="button">Add Money</button>
+    <button id="homeSendMoney" class="action-btn" type="button">Send Money</button>
+    <button id="homeBudgetPots" class="action-btn" type="button">More</button>
+  </div>
+
+  <div class="section">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <h2>Transaction History</h2>
+      <div class="segmented" aria-label="Filter">
+        <button class="active" data-filter="all" type="button">All</button>
+        <button data-filter="income" type="button">Income</button>
+        <button data-filter="expense" type="button">Expenses</button>
+      </div>
+    </div>
+
+    <div class="transaction-list">
+      <div class="transaction-item" data-transaction="expense">
+        <div class="transaction-info">
+          <div class="transaction-icon">🛍️</div>
+          <div>
+            <div><strong>Sainsbury's</strong></div>
+            <div class="transaction-meta">5th Dec</div>
+          </div>
+        </div>
+        <div class="transaction-amount">£2.59</div>
+      </div>
+      <div class="transaction-item" data-transaction="expense">
+        <div class="transaction-info">
+          <div class="transaction-icon">📦</div>
+          <div>
+            <div><strong>Amazon</strong></div>
+            <div class="transaction-meta">5th Dec</div>
+          </div>
+        </div>
+        <div class="transaction-amount">£5.99</div>
+      </div>
+      <div class="transaction-item" data-transaction="expense">
+        <div class="transaction-info">
+          <div class="transaction-icon">🍔</div>
+          <div>
+            <div><strong>McDonald's</strong></div>
+            <div class="transaction-meta">5th Dec</div>
+          </div>
+        </div>
+        <div class="transaction-amount">£2.76</div>
+      </div>
+      <div class="transaction-item" data-transaction="income">
+        <div class="transaction-info">
+          <div class="transaction-icon">💷</div>
+          <div>
+            <div><strong>Salary</strong></div>
+            <div class="transaction-meta">1st Dec</div>
+          </div>
+        </div>
+        <div class="transaction-amount">£1,200</div>
+      </div>
+    </div>
+  </div>
+</div>

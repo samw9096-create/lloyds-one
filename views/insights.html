@@ -1,0 +1,63 @@
+<div class="container">
+  <header class="top-bar">
+    <div class="brand">
+      <img class="brand-logo" src="./one-logo.png" alt="One" />
+    </div>
+    <button class="avatar-btn" aria-label="Profile"></button>
+  </header>
+
+  <h1 class="page-title">AI Insights</h1>
+
+  <div class="pill-nav">
+    <button id="goSendMoney" type="button">Send</button>
+    <button id="goSplitBill" type="button">Split</button>
+    <button class="active" type="button">AI</button>
+  </div>
+
+  <div class="ai-wrap">
+    <div class="ai-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-weight:700;">November</div>
+          <div style="font-size:12px;color:var(--muted);">Spent in November</div>
+        </div>
+        <div style="font-weight:800;">£210.89</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;margin-top:12px;">
+        <svg width="120" height="120" viewBox="0 0 42 42" aria-hidden="true">
+          <circle cx="21" cy="21" r="15.9" fill="none" stroke="#d7efe3" stroke-width="6" />
+          <circle cx="21" cy="21" r="15.9" fill="none" stroke="#0aa85d" stroke-width="6" stroke-dasharray="65 35" stroke-linecap="round" />
+        </svg>
+        <div style="font-size:12px;line-height:1.6;">
+          <div>🧾 Groceries</div>
+          <div>🎟️ Subscriptions</div>
+          <div>🎉 Entertainment</div>
+          <div>💡 Bills</div>
+          <div>✨ Other</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ai-saved">
+      <div>You saved <strong>£45</strong> this month!<br/>Cha-ching!</div>
+      <div>🎉</div>
+    </div>
+
+    <div class="ai-card">
+      <div style="font-weight:700;margin-bottom:8px;">Daily Spending Trends</div>
+      <svg viewBox="0 0 300 120" width="100%" height="120" aria-hidden="true">
+        <defs>
+          <linearGradient id="trend" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#0aa85d" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="#0aa85d" stop-opacity="0.05"/>
+          </linearGradient>
+        </defs>
+        <path d="M0 90 L20 70 L40 85 L60 55 L80 60 L100 50 L120 80 L140 78 L160 65 L180 75 L200 35 L220 30 L240 60 L260 55 L280 40 L300 70 L300 120 L0 120 Z" fill="url(#trend)"/>
+        <path d="M0 90 L20 70 L40 85 L60 55 L80 60 L100 50 L120 80 L140 78 L160 65 L180 75 L200 35 L220 30 L240 60 L260 55 L280 40 L300 70" fill="none" stroke="#0aa85d" stroke-width="3"/>
+      </svg>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);">
+        <span>1 Nov</span><span>10 Nov</span><span>20 Nov</span><span>30 Nov</span>
+      </div>
+    </div>
+  </div>
+</div>
