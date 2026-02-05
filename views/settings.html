@@ -1,0 +1,50 @@
+<div class="container">
+  <header class="top-bar">
+    <div class="brand">
+      <img class="brand-logo" src="./one-logo.png" alt="One" />
+    </div>
+    <button class="avatar-btn" aria-label="Profile"></button>
+  </header>
+
+  <h1 class="page-title">Settings</h1>
+
+  <div class="section">
+    <div style="font-weight:700;">App Appearance</div>
+    <div class="settings-toggle" style="margin-top:10px;">
+      <button id="modeLight" type="button">Light Mode</button>
+      <button id="modeDark" type="button">Dark Mode</button>
+    </div>
+
+    <div class="theme-grid">
+      <div class="theme-card stars" data-theme-card="stars">Stars</div>
+      <div class="theme-card flowers" data-theme-card="flowers">Flowers</div>
+      <div class="theme-card bubbles" data-theme-card="bubbles">Bubbles</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div style="font-weight:700;">General</div>
+    <div class="settings-list">
+      <div class="settings-item">
+        <span>Use Face ID to log in</span>
+        <input id="faceToggle" type="checkbox" />
+      </div>
+      <div class="settings-item">
+        <span>Simulate onboarding</span>
+        <button id="simulateOnboardingBtn" class="action-btn" type="button">Start</button>
+      </div>
+      <div class="settings-item">
+        <span>Manage Devices</span>
+        <span>›</span>
+      </div>
+      <div class="settings-item">
+        <span>Update Personal Information</span>
+        <span>›</span>
+      </div>
+      <div class="settings-item">
+        <span>Help Center / FAQ</span>
+        <span>›</span>
+      </div>
+    </div>
+  </div>
+</div>
