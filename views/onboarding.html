@@ -1,0 +1,56 @@
+<div class="container">
+  <header class="top-bar">
+    <div class="brand">
+      <img class="brand-logo" src="./one-logo.png" alt="One" />
+    </div>
+    <button class="avatar-btn" aria-label="Profile"></button>
+  </header>
+
+  <div id="onboardStep1">
+    <div class="onboard-hero">
+      <h1>Welcome!</h1>
+      <p>Pick your helper:</p>
+    </div>
+
+    <div class="helper-grid">
+      <div class="helper-card" data-helper="louie">
+        <img class="helper-img" src="./louie.png" alt="Louie" />
+        <div><strong>Louie</strong></div>
+      </div>
+      <div class="helper-card" data-helper="lucy">
+        <img class="helper-img" src="./lucy.png" alt="Lucy" />
+        <div><strong>Lucy</strong></div>
+      </div>
+    </div>
+
+    <div class="onboard-actions">
+      <button id="onboardSkip" class="text-link" type="button">Skip</button>
+      <button id="onboardNext" class="primary-btn" type="button">Next</button>
+    </div>
+  </div>
+
+  <div id="onboardStep2" class="hidden">
+    <h1>Hey, Nathaniel!</h1>
+    <p>Next, tell us about your interests</p>
+    <p style="font-weight:700;">Pick 2-3 interests from below:</p>
+
+    <div class="interest-grid">
+      <div class="interest-card" data-interest="films">🎬 Films/TV</div>
+      <div class="interest-card" data-interest="music">🎵 Music</div>
+      <div class="interest-card" data-interest="days">☀️ Days out</div>
+      <div class="interest-card" data-interest="food">🍴 Food</div>
+      <div class="interest-card" data-interest="clothing">👕 Clothing</div>
+      <div class="interest-card" data-interest="coffee">☕ Coffee</div>
+      <div class="interest-card" data-interest="concerts">🎤 Concerts</div>
+      <div class="interest-card" data-interest="tech">💻 Tech</div>
+      <div class="interest-card" data-interest="gaming">🎮 Gaming</div>
+      <div class="interest-card" data-interest="travel">✈️ Travel</div>
+    </div>
+
+    <p id="interestErr" style="color:#c63d3d;margin-top:12px;"></p>
+
+    <div class="onboard-actions" style="justify-content:flex-end;">
+      <button id="onboardFinish" class="primary-btn" type="button">Next →</button>
+    </div>
+  </div>
+</div>
