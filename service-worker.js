@@ -1,6 +1,6 @@
 // service-worker.js
 
-const CACHE_NAME = "lloyds-one-cache-v4";
+const CACHE_NAME = "lloyds-one-cache-v5";
 
 const APP_SHELL = [
   "./",
@@ -24,6 +24,8 @@ const APP_SHELL = [
   "./views/settings.html",
 
   "./one-logo.png",
+  "./v24044gl0000ctelhbfog65h4q43vj90.MP4",
+  "./e54835240e704c41a3a8da0bbbb71378 2.MOV",
   "./assets/fonts/inter.ttf",
   "./icons/icon-192.png",
   "./icons/icon-512.png"
