@@ -693,6 +693,11 @@ h2 {
   place-items: center;
 }
 
+.reel-sound {
+  background: rgba(255,255,255,0.28);
+  font-size: 16px;
+}
+
 .settings-toggle {
   display: inline-flex;
   background: #f0f0f0;
