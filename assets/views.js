@@ -1,8 +1,6 @@
 // assets/views.js
 import { go } from "./router.js";
 import {
-  passkeySignUp,
-  passkeySignIn,
   signUpWithEmail,
   signInWithEmail,
   getProfile,
@@ -363,8 +361,6 @@ async function initLogin() {
   const passwordInput = document.querySelector("#loginPassword");
   const btnEmailUp = document.querySelector("#btnEmailUp");
   const btnEmailIn = document.querySelector("#btnEmailIn");
-  const btnUp = document.querySelector("#btnPasskeyUp");
-  const btnIn = document.querySelector("#btnPasskeyIn");
 
   const setError = (message = "") => {
     if (err) err.textContent = message;
@@ -443,29 +439,6 @@ async function initLogin() {
     };
   }
 
-  if (btnUp) {
-    btnUp.onclick = async () => {
-      setError("");
-      try {
-        await passkeySignUp();
-        setError("Passkey added for this device.");
-      } catch (e) {
-        setError(e?.message || String(e));
-      }
-    };
-  }
-
-  if (btnIn) {
-    btnIn.onclick = async () => {
-      setError("");
-      try {
-        await passkeySignIn();
-        await afterAuth();
-      } catch (e) {
-        setError(e?.message || String(e));
-      }
-    };
-  }
 }
 
 function initHome() {

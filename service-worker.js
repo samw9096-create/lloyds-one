@@ -1,6 +1,6 @@
 // service-worker.js
 
-const CACHE_NAME = "lloyds-one-cache-v45";
+const CACHE_NAME = "lloyds-one-cache-v46";
 
 const APP_SHELL = [
   "./",
