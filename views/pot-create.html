@@ -1,0 +1,41 @@
+<div class="container">
+  <header class="top-bar">
+    <div class="brand">
+      <img class="brand-logo" src="./one-logo.png" alt="One" />
+    </div>
+    <button class="avatar-btn" aria-label="Profile"></button>
+  </header>
+
+  <h1 class="page-title">Create a Pot</h1>
+  <p class="muted">Customise your pot so it feels personal.</p>
+
+  <div class="card" style="padding:14px;">
+    <div class="form-field">
+      <label>Pot name</label>
+      <input id="potName" class="input" type="text" placeholder="e.g. Holiday Fund" />
+    </div>
+    <div class="form-field">
+      <label>Emoji</label>
+      <input id="potEmoji" class="input" type="text" maxlength="2" placeholder="🏖️" />
+    </div>
+    <div class="form-field">
+      <label>Colour</label>
+      <div id="potColorOptions" class="color-options">
+        <button class="color-swatch" data-color="#bfeeda" type="button" aria-label="Mint"></button>
+        <button class="color-swatch" data-color="#9fe2ef" type="button" aria-label="Sky"></button>
+        <button class="color-swatch" data-color="#d9b0e9" type="button" aria-label="Lavender"></button>
+        <button class="color-swatch" data-color="#ffd7b5" type="button" aria-label="Peach"></button>
+        <button class="color-swatch" data-color="#c6f0ff" type="button" aria-label="Ice"></button>
+        <button class="color-swatch" data-color="#d6f7c2" type="button" aria-label="Lime"></button>
+      </div>
+    </div>
+    <div class="form-field">
+      <label>Goal (optional)</label>
+      <input id="potGoal" class="input" type="number" min="0" step="50" placeholder="£0" />
+    </div>
+  </div>
+
+  <div class="section">
+    <button id="potCreateBtn" class="primary-btn" type="button">Create Pot</button>
+  </div>
+</div>

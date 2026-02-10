@@ -275,6 +275,29 @@ button {
   box-shadow: 0 6px 14px rgba(0,0,0,0.08);
 }
 
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.friends-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.1);
+  background: #ffffff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+}
+
+.friends-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: #1d1d1d;
+}
+
 .avatar-btn::before,
 .avatar-btn::after {
   content: "";
@@ -738,6 +761,24 @@ body[data-custom-bg="true"] .smt-table-wrap {
   background: var(--card);
   border: 1px dashed var(--border);
   color: var(--muted);
+}
+
+.color-options {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.color-swatch {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  border: 2px solid transparent;
+}
+
+.color-swatch.selected {
+  border-color: #0aa85d;
+  box-shadow: 0 0 0 2px rgba(10, 168, 93, 0.2);
 }
 
 .balance-box {

@@ -78,6 +78,7 @@ export async function ensureProfile() {
     quizCompleted: [],
     learningXP: 0,
     learningStreak: 0,
+    budgetPots: [],
     settings: {
       textSize: "medium",
       highContrast: false,

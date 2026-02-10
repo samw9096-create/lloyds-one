@@ -85,33 +85,15 @@
       <button id="viewAllPots" class="text-link" type="button">View all</button>
     </div>
 
-    <div class="pots-grid">
-      <button class="pot-card green pot-link" data-to="/pot-house" type="button">
-        <div style="font-size:18px;">£12,256</div>
-        <div style="font-size:12px;">46% of goal</div>
-        <div style="margin-top:8px;">🏠 House Deposit</div>
-      </button>
-      <button class="pot-card blue pot-link" data-to="/pot-car" type="button">
-        <div style="font-size:18px;">£3,456</div>
-        <div style="font-size:12px;">70% of goal</div>
-        <div style="margin-top:8px;">🚗 New Car</div>
-      </button>
-      <button class="pot-card purple pot-link" data-to="/pot-savings" type="button">
-        <div style="font-size:18px;">£789</div>
-        <div style="font-size:12px;">Savings</div>
-        <div style="margin-top:8px;">🐷 Savings</div>
-      </button>
-      <button class="pot-card blank pot-link" data-to="/budget-pots" type="button">
-        <div>+ New Pot</div>
-      </button>
-    </div>
+    <div id="homePotGrid" class="pots-grid"></div>
+    <div id="homePotEmpty" class="muted" style="margin-top:10px;display:none;">No pots yet. Create your first pot.</div>
 
     <div class="balance-box">
       <div>
         <div style="font-weight:800;font-size:18px;">£16,590</div>
         <div style="font-size:12px;color:var(--muted);">Total balance</div>
       </div>
-      <button class="primary-btn" type="button" style="width:auto;padding:10px 14px;">Move Money</button>
+      <button id="homeMoveMoney" class="primary-btn" type="button" style="width:auto;padding:10px 14px;">Move Money</button>
     </div>
   </div>
 

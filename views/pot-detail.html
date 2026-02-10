@@ -1,0 +1,49 @@
+<div class="container">
+  <header class="top-bar">
+    <div class="brand">
+      <img class="brand-logo" src="./one-logo.png" alt="One" />
+    </div>
+    <button class="avatar-btn" aria-label="Profile"></button>
+  </header>
+
+  <h1 class="page-title" id="potDetailTitle">Pot</h1>
+
+  <section id="potDetailHero" class="pot-hero">
+    <div>
+      <div class="pot-hero-label">Balance</div>
+      <div id="potDetailBalance" class="pot-hero-value">£0</div>
+      <div id="potDetailGoal" class="pot-hero-sub">Goal £0 • 0% complete</div>
+    </div>
+    <div id="potDetailEmoji" class="pot-hero-icon">🪴</div>
+  </section>
+
+  <div class="pot-progress">
+    <div class="progress-track">
+      <div id="potDetailProgress" class="progress-fill" style="width:0%;"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="card" style="padding:12px;">
+      <div class="settings-item">
+        <span>Pot name</span>
+        <span id="potDetailName">—</span>
+      </div>
+      <div class="settings-item">
+        <span>Goal</span>
+        <span id="potDetailGoalAmount">£0</span>
+      </div>
+      <div class="settings-item">
+        <span>Current balance</span>
+        <span id="potDetailBalanceAmount">£0</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="pot-actions">
+      <button id="potDetailAdd" class="primary-btn" type="button">Add money</button>
+      <button id="potDetailRemove" class="action-btn" type="button">Withdraw</button>
+    </div>
+  </div>
+</div>

@@ -30,6 +30,22 @@ const STORAGE_KEYS = {
   theme: "appTheme"
 };
 
+const POT_COLORS = ["#bfeeda", "#9fe2ef", "#d9b0e9", "#ffd7b5", "#c6f0ff", "#d6f7c2"];
+
+async function getBudgetPots() {
+  const profile = await getProfile();
+  return Array.isArray(profile.budgetPots) ? profile.budgetPots : [];
+}
+
+async function setBudgetPots(pots) {
+  await updateProfile({ budgetPots: pots });
+  return pots;
+}
+
+function formatMoney(value) {
+  return `£${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
 function showConfirmation(message = "Done") {
   let overlay = document.querySelector("#confirmOverlay");
   if (!overlay) {
@@ -132,6 +148,25 @@ export async function initView(path) {
   if (brand) brand.onclick = () => go("/home");
   if (avatar) avatar.onclick = () => go("/account");
 
+  const topBar = document.querySelector(".top-bar");
+  if (topBar && avatar && !topBar.querySelector(".friends-btn")) {
+    const actions = document.createElement("div");
+    actions.className = "top-actions";
+    const friendsBtn = document.createElement("button");
+    friendsBtn.className = "friends-btn";
+    friendsBtn.type = "button";
+    friendsBtn.setAttribute("aria-label", "Friends");
+    friendsBtn.innerHTML = `
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M7.5 12a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Zm9 0a3 3 0 1 1 0-6 3 3 0 0 1 0 6ZM2 20.5c0-3 3.4-5.5 7.5-5.5S17 17.5 17 20.5v.5H2v-.5Zm14.5.5v-.5c0-1.1-.4-2.1-1.1-3 2.6.4 4.6 2 4.6 4.1v.4h-3.5Z"/>
+      </svg>
+    `;
+    friendsBtn.onclick = () => go("/friends");
+    actions.appendChild(friendsBtn);
+    actions.appendChild(avatar);
+    topBar.appendChild(actions);
+  }
+
   if (path === "/login") return initLogin();
   if (path === "/splash") return initSplash();
   if (path === "/onboarding") return initOnboarding();
@@ -148,12 +183,15 @@ export async function initView(path) {
   if (path === "/quiz-summary") return initQuizSummary();
   if (path === "/transaction") return initTransaction();
   if (path === "/add-money") return initAddMoney();
+  if (path === "/add-to-pot") return initAddToPot();
   if (path === "/scan-cheque") return initScanCheque();
   if (path === "/move-from-pot") return initMoveFromPot();
   if (path === "/payments") return initPayments();
   if (path === "/bill-splitting") return initBillSplitting();
   if (path === "/insights") return initInsights();
   if (path === "/budget-pots") return initBudgetPots();
+  if (path === "/pot-create") return initPotCreate();
+  if (path === "/pot-detail") return initPotDetail();
   if (path === "/deal-dash") return initDealDash();
   if (path === "/money-minutes") return initMoneyMinutes();
   if (path === "/settings") return initSettings();
@@ -448,7 +486,6 @@ function initHome() {
   const addBtn = document.querySelector("#homeAddMoney");
   const potsBtn = document.querySelector("#homeBudgetPots");
   const viewAllPots = document.querySelector("#viewAllPots");
-  const potLinks = document.querySelectorAll(".pot-link");
   const openShoppingList = document.querySelector("#openShoppingList");
   const openSmartMoney = document.querySelector("#openSmartMoney");
   const openLearn = document.querySelector("#openLearn");
@@ -458,6 +495,9 @@ function initHome() {
   const arrangeSave = document.querySelector("#arrangeSave");
   const arrangeCancel = document.querySelector("#arrangeCancel");
   const widgetsWrap = document.querySelector("#homeWidgets");
+  const homePotGrid = document.querySelector("#homePotGrid");
+  const homePotEmpty = document.querySelector("#homePotEmpty");
+  const homeMoveMoney = document.querySelector("#homeMoveMoney");
   const balanceEl = document.querySelector("#homeBalanceAmount");
   const balanceOverlayEl = document.querySelector("#homeBalanceOverlayAmount");
   const txList = document.querySelector("#homeTransactionList");
@@ -472,9 +512,7 @@ function initHome() {
   if (addBtn) addBtn.onclick = () => go("/add-money");
   if (potsBtn) potsBtn.onclick = () => go("/budget-pots");
   if (viewAllPots) viewAllPots.onclick = () => go("/budget-pots");
-  potLinks.forEach((btn) => {
-    btn.onclick = () => go(btn.dataset.to);
-  });
+  if (homeMoveMoney) homeMoveMoney.onclick = () => go("/move-from-pot");
   if (openShoppingList) openShoppingList.onclick = () => go("/shopping-list");
   if (openSmartMoney) openSmartMoney.onclick = () => go("/smart-money");
   if (openLearn) openLearn.onclick = () => go("/learn");
@@ -524,9 +562,43 @@ function initHome() {
 
   initHomeInsightsCard();
 
+  const renderHomePots = async () => {
+    if (!homePotGrid) return;
+    const pots = await getBudgetPots();
+    homePotGrid.innerHTML = "";
+    if (!pots.length) {
+      if (homePotEmpty) homePotEmpty.style.display = "block";
+    } else if (homePotEmpty) {
+      homePotEmpty.style.display = "none";
+    }
+
+    pots.slice(0, 3).forEach((pot) => {
+      const pct = pot.goal ? Math.min(100, Math.round((pot.balance / pot.goal) * 100)) : 0;
+      const card = document.createElement("button");
+      card.className = "pot-card";
+      card.type = "button";
+      card.style.background = pot.color || POT_COLORS[0];
+      card.innerHTML = `
+        <div style="font-size:18px;">${formatMoney(pot.balance)}</div>
+        <div style="font-size:12px;">${pot.goal ? `${pct}% of goal` : "No goal set"}</div>
+        <div style="margin-top:8px;">${pot.emoji || "🪴"} ${pot.name}</div>
+      `;
+      card.onclick = () => go(`/pot-detail?id=${encodeURIComponent(pot.id)}`);
+      homePotGrid.appendChild(card);
+    });
+
+    const newBtn = document.createElement("button");
+    newBtn.className = "pot-card blank";
+    newBtn.type = "button";
+    newBtn.innerHTML = `<div>+ New Pot</div>`;
+    newBtn.onclick = () => go("/pot-create");
+    homePotGrid.appendChild(newBtn);
+  };
+
+  renderHomePots();
+
   let allTransactions = [];
 
-  const formatMoney = (value) => `£${Number(value).toFixed(2)}`;
   const formatDate = (iso) => {
     const d = iso ? new Date(iso) : new Date();
     return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
@@ -1229,8 +1301,10 @@ function initTransaction() {
 function initAddMoney() {
   const openCheque = document.querySelector("#openCheque");
   const openMove = document.querySelector("#openMoveFromPot");
+  const openAddToPot = document.querySelector("#openAddToPot");
   if (openCheque) openCheque.onclick = () => go("/scan-cheque");
   if (openMove) openMove.onclick = () => go("/move-from-pot");
+  if (openAddToPot) openAddToPot.onclick = () => go("/add-to-pot");
 }
 
 function initScanCheque() {
@@ -1254,7 +1328,180 @@ function initScanCheque() {
 
 function initMoveFromPot() {
   const confirm = document.querySelector("#movePotConfirm");
-  if (confirm) confirm.onclick = () => showConfirmation("Money added");
+  const select = document.querySelector("#movePotSelect");
+  const amountInput = document.querySelector("#movePotAmount");
+  const hash = window.location.hash || "";
+  const query = hash.includes("?") ? hash.split("?")[1] : "";
+  const params = new URLSearchParams(query);
+  const preselectId = params.get("id");
+
+  const load = async () => {
+    if (!select) return;
+    const pots = await getBudgetPots();
+    select.innerHTML = "";
+    if (!pots.length) {
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "No pots available";
+      select.appendChild(opt);
+      return;
+    }
+    pots.forEach((pot) => {
+      const opt = document.createElement("option");
+      opt.value = pot.id;
+      opt.textContent = `${pot.emoji || "🪴"} ${pot.name} (${formatMoney(pot.balance)})`;
+      select.appendChild(opt);
+    });
+    if (preselectId) select.value = preselectId;
+  };
+
+  if (confirm) {
+    confirm.onclick = async () => {
+      const potId = select?.value || "";
+      const amount = Number(amountInput?.value || 0);
+      if (!potId) return alert("Select a pot.");
+      if (!amount || amount <= 0) return alert("Enter an amount.");
+      const pots = await getBudgetPots();
+      const pot = pots.find((p) => p.id === potId);
+      if (!pot) return alert("Pot not found.");
+      if (amount > pot.balance) return alert("Not enough in this pot.");
+      pot.balance = Number(pot.balance) - amount;
+      await setBudgetPots(pots);
+      showConfirmation("Money moved");
+    };
+  }
+
+  load();
+}
+
+function initAddToPot() {
+  const confirm = document.querySelector("#addPotConfirm");
+  const select = document.querySelector("#addPotSelect");
+  const amountInput = document.querySelector("#addPotAmount");
+  const hash = window.location.hash || "";
+  const query = hash.includes("?") ? hash.split("?")[1] : "";
+  const params = new URLSearchParams(query);
+  const preselectId = params.get("id");
+
+  const load = async () => {
+    if (!select) return;
+    const pots = await getBudgetPots();
+    select.innerHTML = "";
+    if (!pots.length) {
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "No pots available";
+      select.appendChild(opt);
+      return;
+    }
+    pots.forEach((pot) => {
+      const opt = document.createElement("option");
+      opt.value = pot.id;
+      opt.textContent = `${pot.emoji || "🪴"} ${pot.name}`;
+      select.appendChild(opt);
+    });
+    if (preselectId) select.value = preselectId;
+  };
+
+  if (confirm) {
+    confirm.onclick = async () => {
+      const potId = select?.value || "";
+      const amount = Number(amountInput?.value || 0);
+      if (!potId) return alert("Select a pot.");
+      if (!amount || amount <= 0) return alert("Enter an amount.");
+      const pots = await getBudgetPots();
+      const pot = pots.find((p) => p.id === potId);
+      if (!pot) return alert("Pot not found.");
+      pot.balance = Number(pot.balance) + amount;
+      await setBudgetPots(pots);
+      showConfirmation("Money added");
+    };
+  }
+
+  load();
+}
+
+function initPotCreate() {
+  const nameInput = document.querySelector("#potName");
+  const emojiInput = document.querySelector("#potEmoji");
+  const goalInput = document.querySelector("#potGoal");
+  const createBtn = document.querySelector("#potCreateBtn");
+  const colorWrap = document.querySelector("#potColorOptions");
+  let chosenColor = POT_COLORS[0];
+
+  if (colorWrap) {
+    const buttons = Array.from(colorWrap.querySelectorAll(".color-swatch"));
+    buttons.forEach((btn) => {
+      const color = btn.dataset.color || POT_COLORS[0];
+      btn.style.background = color;
+      btn.onclick = () => {
+        chosenColor = color;
+        buttons.forEach((b) => b.classList.toggle("selected", b === btn));
+      };
+    });
+    if (buttons[0]) buttons[0].classList.add("selected");
+  }
+
+  if (createBtn) {
+    createBtn.onclick = async () => {
+      const name = nameInput?.value.trim();
+      if (!name) return alert("Enter a pot name.");
+      const emoji = (emojiInput?.value || "🪴").trim() || "🪴";
+      const goal = Number(goalInput?.value || 0);
+      const pots = await getBudgetPots();
+      const pot = {
+        id: `pot_${crypto.randomUUID ? crypto.randomUUID() : Date.now()}`,
+        name,
+        emoji,
+        color: chosenColor,
+        goal: goal > 0 ? goal : 0,
+        balance: 0
+      };
+      pots.push(pot);
+      await setBudgetPots(pots);
+      go(`/pot-detail?id=${encodeURIComponent(pot.id)}`);
+    };
+  }
+}
+
+function initPotDetail() {
+  const title = document.querySelector("#potDetailTitle");
+  const hero = document.querySelector("#potDetailHero");
+  const emoji = document.querySelector("#potDetailEmoji");
+  const balance = document.querySelector("#potDetailBalance");
+  const goal = document.querySelector("#potDetailGoal");
+  const progress = document.querySelector("#potDetailProgress");
+  const nameEl = document.querySelector("#potDetailName");
+  const goalAmount = document.querySelector("#potDetailGoalAmount");
+  const balanceAmount = document.querySelector("#potDetailBalanceAmount");
+  const addBtn = document.querySelector("#potDetailAdd");
+  const removeBtn = document.querySelector("#potDetailRemove");
+
+  const hash = window.location.hash || "";
+  const query = hash.includes("?") ? hash.split("?")[1] : "";
+  const params = new URLSearchParams(query);
+  const id = params.get("id");
+
+  const render = async () => {
+    const pots = await getBudgetPots();
+    const pot = pots.find((p) => p.id === id);
+    if (!pot) return;
+    if (title) title.textContent = pot.name;
+    if (emoji) emoji.textContent = pot.emoji || "🪴";
+    if (hero) hero.style.background = pot.color || POT_COLORS[0];
+    if (balance) balance.textContent = formatMoney(pot.balance);
+    const pct = pot.goal ? Math.min(100, Math.round((pot.balance / pot.goal) * 100)) : 0;
+    if (goal) goal.textContent = pot.goal ? `Goal ${formatMoney(pot.goal)} • ${pct}% complete` : "No goal set";
+    if (progress) progress.style.width = `${pct}%`;
+    if (nameEl) nameEl.textContent = pot.name;
+    if (goalAmount) goalAmount.textContent = pot.goal ? formatMoney(pot.goal) : "—";
+    if (balanceAmount) balanceAmount.textContent = formatMoney(pot.balance);
+  };
+
+  if (addBtn) addBtn.onclick = () => go(`/add-to-pot?id=${encodeURIComponent(id || "")}`);
+  if (removeBtn) removeBtn.onclick = () => go(`/move-from-pot?id=${encodeURIComponent(id || "")}`);
+
+  render();
 }
 
 function initInsights() {
@@ -1457,11 +1704,42 @@ function initHomeInsightsCard() {
 
 function initBudgetPots() {
   const moveBtn = document.querySelector("#moveMoneyBtn");
-  const potLinks = document.querySelectorAll(".pot-link");
-  if (moveBtn) moveBtn.onclick = () => go("/payments");
-  potLinks.forEach((btn) => {
-    btn.onclick = () => go(btn.dataset.to);
-  });
+  const grid = document.querySelector("#potsGrid");
+  const empty = document.querySelector("#potsEmpty");
+  const totalEl = document.querySelector("#potsTotal");
+  const newBtn = document.querySelector("#newPotBtn");
+  if (moveBtn) moveBtn.onclick = () => go("/move-from-pot");
+  if (newBtn) newBtn.onclick = () => go("/pot-create");
+
+  const render = async () => {
+    const pots = await getBudgetPots();
+    if (grid) grid.innerHTML = "";
+    const total = pots.reduce((sum, pot) => sum + Number(pot.balance || 0), 0);
+    if (totalEl) totalEl.textContent = formatMoney(total);
+
+    if (!pots.length) {
+      if (empty) empty.style.display = "block";
+      return;
+    }
+    if (empty) empty.style.display = "none";
+
+    pots.forEach((pot) => {
+      const pct = pot.goal ? Math.min(100, Math.round((pot.balance / pot.goal) * 100)) : 0;
+      const card = document.createElement("button");
+      card.className = "pot-card";
+      card.type = "button";
+      card.style.background = pot.color || POT_COLORS[0];
+      card.innerHTML = `
+        <div style="font-size:18px;">${formatMoney(pot.balance)}</div>
+        <div style="font-size:12px;">${pot.goal ? `${pct}% of goal` : "No goal set"}</div>
+        <div style="margin-top:8px;">${pot.emoji || "🪴"} ${pot.name}</div>
+      `;
+      card.onclick = () => go(`/pot-detail?id=${encodeURIComponent(pot.id)}`);
+      grid.appendChild(card);
+    });
+  };
+
+  render();
 }
 
 function initDealDash() {
