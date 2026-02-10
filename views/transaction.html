@@ -1,0 +1,36 @@
+<div class="container">
+  <header class="top-bar">
+    <div class="brand">
+      <img class="brand-logo" src="./one-logo.png" alt="One" />
+    </div>
+    <button class="avatar-btn" aria-label="Profile"></button>
+  </header>
+
+  <h1 class="page-title">Transaction</h1>
+
+  <div class="card" style="padding:14px;">
+    <div class="transaction-detail-top">
+      <div class="transaction-detail-icon" id="txIcon">🛍️</div>
+      <div>
+        <div class="transaction-detail-merchant" id="txMerchant">Merchant</div>
+        <div class="muted" id="txMeta">Date • Time</div>
+      </div>
+      <div class="transaction-detail-amount" id="txAmount">£0.00</div>
+    </div>
+
+    <div class="transaction-map" id="txMap">
+      <div class="transaction-map-pin">📍</div>
+      <div class="transaction-map-label" id="txLocation">Location</div>
+    </div>
+
+    <div class="settings-list" style="margin-top:12px;">
+      <div class="settings-item"><span>Status</span><span id="txStatus">Completed</span></div>
+      <div class="settings-item"><span>Category</span><span id="txCategory">Food</span></div>
+      <div class="settings-item"><span>Card used</span><span id="txCard">Lloyds Debit</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <button id="txSplitBtn" class="primary-btn" type="button">Split this bill</button>
+  </div>
+</div>

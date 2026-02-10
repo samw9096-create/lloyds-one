@@ -14,50 +14,49 @@
     <button class="active" type="button">AI</button>
   </div>
 
-  <div class="ai-wrap">
-    <div class="ai-card">
-      <div style="display:flex;align-items:center;justify-content:space-between;">
-        <div>
-          <div style="font-weight:700;">November</div>
-          <div style="font-size:12px;color:var(--muted);">Spent in November</div>
-        </div>
-        <div style="font-weight:800;">£210.89</div>
+  <div class="card" style="padding:14px;">
+    <div class="insights-header">
+      <div>
+        <div class="muted" style="font-size:12px;">Spending snapshot</div>
+        <div class="insights-total" id="insightsTotal">£0</div>
       </div>
-      <div style="display:flex;align-items:center;gap:16px;margin-top:12px;">
-        <svg width="120" height="120" viewBox="0 0 42 42" aria-hidden="true">
-          <circle cx="21" cy="21" r="15.9" fill="none" stroke="#d7efe3" stroke-width="6" />
-          <circle cx="21" cy="21" r="15.9" fill="none" stroke="#0aa85d" stroke-width="6" stroke-dasharray="65 35" stroke-linecap="round" />
-        </svg>
-        <div style="font-size:12px;line-height:1.6;">
-          <div>🧾 Groceries</div>
-          <div>🎟️ Subscriptions</div>
-          <div>🎉 Entertainment</div>
-          <div>💡 Bills</div>
-          <div>✨ Other</div>
-        </div>
+      <div class="insights-period">
+        <button class="insights-chip active" data-period="week" type="button">Week</button>
+        <button class="insights-chip" data-period="month" type="button">Month</button>
+        <button class="insights-chip" data-period="year" type="button">Year</button>
       </div>
     </div>
 
-    <div class="ai-saved">
-      <div>You saved <strong>£45</strong> this month!<br/>Cha-ching!</div>
-      <div>🎉</div>
-    </div>
-
-    <div class="ai-card">
-      <div style="font-weight:700;margin-bottom:8px;">Daily Spending Trends</div>
-      <svg viewBox="0 0 300 120" width="100%" height="120" aria-hidden="true">
-        <defs>
-          <linearGradient id="trend" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stop-color="#0aa85d" stop-opacity="0.6"/>
-            <stop offset="100%" stop-color="#0aa85d" stop-opacity="0.05"/>
-          </linearGradient>
-        </defs>
-        <path d="M0 90 L20 70 L40 85 L60 55 L80 60 L100 50 L120 80 L140 78 L160 65 L180 75 L200 35 L220 30 L240 60 L260 55 L280 40 L300 70 L300 120 L0 120 Z" fill="url(#trend)"/>
-        <path d="M0 90 L20 70 L40 85 L60 55 L80 60 L100 50 L120 80 L140 78 L160 65 L180 75 L200 35 L220 30 L240 60 L260 55 L280 40 L300 70" fill="none" stroke="#0aa85d" stroke-width="3"/>
+    <div class="insights-donut">
+      <svg viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="44" fill="none" stroke="#e2efe8" stroke-width="14" />
+        <circle id="insightsDonut" cx="60" cy="60" r="44" fill="none" stroke="#0aa85d" stroke-width="14" stroke-dasharray="0 276" stroke-linecap="round" />
+        <text id="insightsDonutLabel" x="60" y="60" text-anchor="middle" dy="6" font-size="16" font-weight="700" fill="#0f3a26">0%</text>
       </svg>
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);">
-        <span>1 Nov</span><span>10 Nov</span><span>20 Nov</span><span>30 Nov</span>
-      </div>
+      <div class="insights-legend" id="insightsLegend"></div>
     </div>
+  </div>
+
+  <div class="card" style="padding:14px;margin-top:16px;">
+    <div class="insights-row">
+      <div>
+        <div class="muted" style="font-size:12px;">Safe to spend</div>
+        <div id="insightsSafe" class="insights-safe">£0</div>
+      </div>
+      <div class="insights-spark" id="insightsSpark"></div>
+    </div>
+  </div>
+
+  <div class="card" style="padding:14px;margin-top:16px;">
+    <div class="insights-row" style="margin-bottom:10px;">
+      <div style="font-weight:700;">Daily trend</div>
+      <div class="muted" id="insightsTrendLabel">Last 7 days</div>
+    </div>
+    <div class="insights-bars" id="insightsBars"></div>
+  </div>
+
+  <div class="card" style="padding:14px;margin-top:16px;">
+    <div style="font-weight:700;margin-bottom:8px;">Categories</div>
+    <div id="insightsCategories" class="insights-categories"></div>
   </div>
 </div>

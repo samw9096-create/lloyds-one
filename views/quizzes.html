@@ -1,0 +1,28 @@
+<div class="container">
+  <header class="top-bar">
+    <div class="brand">
+      <img class="brand-logo" src="./one-logo.png" alt="One" />
+    </div>
+    <button class="avatar-btn" aria-label="Profile"></button>
+  </header>
+
+  <h1 class="page-title" id="quizModuleTitle">Module</h1>
+  <p class="muted" id="quizModuleDesc">Short quizzes to lock in learning.</p>
+
+  <div class="card" style="padding:14px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+      <div>
+        <div class="muted" style="font-size:12px;">Module progress</div>
+        <div id="quizModulePct" class="insights-total">0%</div>
+      </div>
+      <div class="muted" id="quizModuleCount">0 / 0 quizzes</div>
+    </div>
+    <div class="progress-track" style="margin-top:10px;">
+      <div id="quizModuleBar" class="progress-fill" style="width:0%;"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div id="quizList" class="learn-list"></div>
+  </div>
+</div>

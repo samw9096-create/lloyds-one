@@ -1,0 +1,36 @@
+<div class="container">
+  <header class="top-bar">
+    <div class="brand">
+      <img class="brand-logo" src="./one-logo.png" alt="One" />
+    </div>
+  </header>
+
+  <h1 class="page-title">Welcome back</h1>
+  <p class="muted">Sign in with email to sync across devices. You can add a passkey for quick unlock on this device.</p>
+
+  <div class="card" style="padding:14px;margin-bottom:14px;">
+    <div style="font-weight:700;margin-bottom:6px;">Email & Password</div>
+    <div class="form-field">
+      <label>Email</label>
+      <input id="loginEmail" class="input" type="email" placeholder="you@email.com" />
+    </div>
+    <div class="form-field">
+      <label>Password</label>
+      <input id="loginPassword" class="input" type="password" placeholder="••••••••" />
+    </div>
+    <div class="action-row" style="grid-template-columns:1fr 1fr;">
+      <button id="btnEmailUp" class="primary-btn" type="button">Create account</button>
+      <button id="btnEmailIn" class="action-btn" type="button">Sign in</button>
+    </div>
+    <p id="loginErr" style="color:#c63d3d;margin-top:10px;"></p>
+  </div>
+
+  <div class="card" style="padding:14px;">
+    <div style="font-weight:700;">Passkey (optional)</div>
+    <p class="muted">Create a passkey for this device after signing in once.</p>
+    <div class="action-row" style="grid-template-columns:1fr 1fr;">
+      <button id="btnPasskeyUp" class="primary-btn" type="button">Add passkey</button>
+      <button id="btnPasskeyIn" class="action-btn" type="button">Use passkey</button>
+    </div>
+  </div>
+</div>

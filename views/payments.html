@@ -10,13 +10,11 @@
 
   <div class="pill-nav">
     <button class="active" type="button">Send</button>
-    <button id="goSplitBill" type="button">Split</button>
-    <button id="goInsights" type="button">AI</button>
   </div>
 
   <div class="form-field">
     <label>From</label>
-    <select>
+    <select id="sendFromAccount">
       <option>Nathaniel's Current Account</option>
       <option>Savings Account</option>
     </select>
@@ -24,21 +22,19 @@
 
   <div class="form-field">
     <label>To</label>
-    <select>
-      <option>Dong L.</option>
-      <option>Aisha W.</option>
-      <option>Sam W.</option>
+    <select id="sendToSelect">
+      <option value="">Select recipient</option>
     </select>
   </div>
 
   <div class="form-field">
     <label>Amount</label>
-    <input class="input" type="text" placeholder="£ 00.00" />
+    <input id="sendAmount" class="input" type="text" placeholder="£ 00.00" />
   </div>
 
   <div class="form-field">
     <label>Reference</label>
-    <input class="input" type="text" placeholder="Enter reference..." />
+    <input id="sendReference" class="input" type="text" placeholder="Enter reference..." />
   </div>
 
   <button id="sendMoneyBtn" class="primary-btn" type="button">Send Money</button>

@@ -25,11 +25,11 @@ export function mountBottomNav() {
         </span>
         <span class="nav-label">Payments</span>
       </button>
-      <button class="nav-btn" data-to="/money-minutes" aria-label="Money Minutes">
+      <button class="nav-btn" data-to="/learn" aria-label="Learn">
         <span class="nav-ico">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7.5v9l7-4.5z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5 12 3l9 3.5-9 3.5-9-3.5Zm2 6.2v4.3l7 3 7-3v-4.3l-7 2.7-7-2.7Zm7-2.9 9-3.5 1 2.4-10 4.1-10-4.1 1-2.4 9 3.5Z"/></svg>
         </span>
-        <span class="nav-label">Money Minutes</span>
+        <span class="nav-label">Learn</span>
       </button>
       <button class="nav-btn" data-to="/deal-dash" aria-label="Deal Dash">
         <span class="nav-ico">

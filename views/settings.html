@@ -8,42 +8,179 @@
 
   <h1 class="page-title">Settings</h1>
 
-  <div class="section">
-    <div style="font-weight:700;">App Appearance</div>
+  <div class="settings-section">
+    <div class="settings-title">Appearance</div>
     <div class="settings-toggle" style="margin-top:10px;">
       <button id="modeLight" type="button">Light Mode</button>
       <button id="modeDark" type="button">Dark Mode</button>
     </div>
 
     <div class="theme-grid">
-      <div class="theme-card stars" data-theme-card="stars">Stars</div>
-      <div class="theme-card flowers" data-theme-card="flowers">Flowers</div>
-      <div class="theme-card bubbles" data-theme-card="bubbles">Bubbles</div>
+      <div class="theme-card stars" data-bg-theme="stars">Stars</div>
+      <div class="theme-card flowers" data-bg-theme="flowers">Flowers</div>
+      <div class="theme-card bubbles" data-bg-theme="bubbles">Bubbles</div>
+      <div class="theme-card linen" data-bg-theme="linen">Linen</div>
+      <div class="theme-card sunrise" data-bg-theme="sunrise">Sunrise</div>
+      <div class="theme-card dusk" data-bg-theme="dusk">Dusk</div>
+      <div class="theme-card custom" data-bg-theme="custom" id="customThemeCard">Custom</div>
+    </div>
+
+    <div class="settings-list">
+      <div class="settings-item">
+        <span>Upload background</span>
+        <button id="uploadBgBtn" class="action-btn" type="button">Upload</button>
+        <input id="bgUploadInput" type="file" accept="image/*" style="display:none;" />
+      </div>
+      <div class="settings-item">
+        <span>Remove custom background</span>
+        <button id="removeBgBtn" class="action-btn" type="button">Remove</button>
+      </div>
+    </div>
+
+    <div class="settings-list">
+      <div class="settings-item">
+        <span>Text size</span>
+        <select id="setTextSize" class="select">
+          <option value="small">Small</option>
+          <option value="medium">Medium</option>
+          <option value="large">Large</option>
+          <option value="xlarge">Extra large</option>
+        </select>
+      </div>
+      <div class="settings-item">
+        <span>High contrast</span>
+        <input id="setContrast" class="switch" type="checkbox" />
+      </div>
+      <div class="settings-item">
+        <span>Reduce motion</span>
+        <input id="setMotion" class="switch" type="checkbox" />
+      </div>
+      <div class="settings-item">
+        <span>Large tap targets</span>
+        <input id="setLargeTargets" class="switch" type="checkbox" />
+      </div>
     </div>
   </div>
 
-  <div class="section">
-    <div style="font-weight:700;">General</div>
+  <div class="settings-section">
+    <div class="settings-title">Security</div>
     <div class="settings-list">
       <div class="settings-item">
         <span>Use Face ID to log in</span>
-        <input id="faceToggle" type="checkbox" />
+        <input id="faceToggle" class="switch" type="checkbox" />
       </div>
+      <div class="settings-item">
+        <span>App lock</span>
+        <input id="setAppLock" class="switch" type="checkbox" />
+      </div>
+      <div class="settings-item">
+        <span>Auto-lock</span>
+        <select id="setAutoLock" class="select">
+          <option value="1m">After 1 minute</option>
+          <option value="5m">After 5 minutes</option>
+          <option value="15m">After 15 minutes</option>
+          <option value="never">Never</option>
+        </select>
+      </div>
+      <div class="settings-item">
+        <span>Hide balances on home</span>
+        <input id="setBalancePrivacy" class="switch" type="checkbox" />
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-title">Notifications</div>
+    <div class="settings-list">
+      <div class="settings-item">
+        <span>Push notifications</span>
+        <input id="setNotifications" class="switch" type="checkbox" />
+      </div>
+      <div class="settings-item">
+        <span>Payment alerts</span>
+        <input id="setPaymentAlerts" class="switch" type="checkbox" />
+      </div>
+      <div class="settings-item">
+        <span>Bill reminders</span>
+        <input id="setBillReminders" class="switch" type="checkbox" />
+      </div>
+      <div class="settings-item">
+        <span>Weekly summary</span>
+        <input id="setWeeklySummary" class="switch" type="checkbox" />
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-title">Audio & Haptics</div>
+    <div class="settings-list">
+      <div class="settings-item">
+        <span>Sounds</span>
+        <input id="setSounds" class="switch" type="checkbox" />
+      </div>
+      <div class="settings-item">
+        <span>Haptics</span>
+        <input id="setHaptics" class="switch" type="checkbox" />
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-title">Data & Privacy</div>
+    <div class="settings-list">
+      <div class="settings-item">
+        <span>Data saver</span>
+        <input id="setDataSaver" class="switch" type="checkbox" />
+      </div>
+      <div class="settings-item">
+        <span>Location for deals</span>
+        <input id="setLocation" class="switch" type="checkbox" />
+      </div>
+      <div class="settings-item">
+        <span>Marketing preferences</span>
+        <input id="setMarketing" class="switch" type="checkbox" />
+      </div>
+      <div class="settings-item">
+        <span>Statements format</span>
+        <select id="setStatements" class="select">
+          <option value="pdf">PDF</option>
+          <option value="csv">CSV</option>
+          <option value="both">Both</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-title">Testing & Support</div>
+    <div class="settings-list">
       <div class="settings-item">
         <span>Simulate onboarding</span>
         <button id="simulateOnboardingBtn" class="action-btn" type="button">Start</button>
       </div>
       <div class="settings-item">
-        <span>Manage Devices</span>
-        <span>›</span>
+        <span>Sign out</span>
+        <button id="signOutBtn" class="action-btn" type="button">Sign out</button>
       </div>
       <div class="settings-item">
-        <span>Update Personal Information</span>
-        <span>›</span>
+        <span>Reset account</span>
+        <button id="resetAccountBtn" class="action-btn" type="button">Reset</button>
+      </div>
+      <div class="settings-item">
+        <span>Delete account</span>
+        <button id="deleteAccountBtn" class="action-btn" type="button">Delete</button>
       </div>
       <div class="settings-item">
         <span>Help Center / FAQ</span>
         <span>›</span>
+      </div>
+      <div class="settings-item">
+        <span>Report a problem</span>
+        <span>›</span>
+      </div>
+      <div class="settings-item">
+        <span>App version</span>
+        <span class="muted">1.0.0</span>
       </div>
     </div>
   </div>

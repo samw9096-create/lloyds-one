@@ -1,0 +1,33 @@
+<div class="container">
+  <header class="top-bar">
+    <div class="brand">
+      <img class="brand-logo" src="./one-logo.png" alt="One" />
+    </div>
+    <button class="avatar-btn" aria-label="Profile"></button>
+  </header>
+
+  <h1 class="page-title">Learning Modules</h1>
+  <p class="muted">Short lessons, quick quizzes, real-world money skills.</p>
+
+  <div class="card" style="padding:14px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+      <div>
+        <div class="muted" style="font-size:12px;">Overall progress</div>
+        <div id="learnOverallPct" class="insights-total">0%</div>
+      </div>
+      <div class="learn-meta">
+        <div class="learn-meta-item">
+          <div class="muted" style="font-size:12px;">Streak</div>
+          <div id="learnStreak" class="learn-meta-value">0 days</div>
+        </div>
+      </div>
+    </div>
+    <div class="progress-track" style="margin-top:10px;">
+      <div id="learnOverallBar" class="progress-fill" style="width:0%;"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="module-grid" id="moduleGrid"></div>
+  </div>
+</div>

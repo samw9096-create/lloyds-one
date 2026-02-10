@@ -14,56 +14,29 @@
     <button id="goInsights" type="button">AI</button>
   </div>
 
-  <div class="bill-card">
-    <div style="display:flex;align-items:center;gap:10px;">
-      <div class="brand-box" style="background:#fff3e1;border:none;">M</div>
-      <div>
-        <div><strong>£14.50</strong> <span style="margin-left:6px;">Spent at McDonald's</span></div>
-        <div style="font-size:12px;color:#436254;">4 Attendees • 10:34 AM • 14/11/2025</div>
-      </div>
+  <div id="billSelect" class="card" style="padding:14px;">
+    <div style="font-weight:700;margin-bottom:8px;">Choose a recent transaction</div>
+    <div id="billTxList" class="settings-list"></div>
+
+    <div class="section">
+      <div style="font-weight:700;margin-bottom:8px;">Pick friends</div>
+      <div id="billFriendsList" class="settings-list"></div>
+    </div>
+
+    <div class="section">
+      <button id="billContinue" class="primary-btn" type="button">Continue</button>
     </div>
   </div>
 
-  <div class="section">
-    <div style="font-weight:700;margin-bottom:8px;">Attendees</div>
-    <div class="attendee-list">
-      <div class="attendee-item">
-        <div class="attendee-left">
-          <div class="avatar-circle">S</div>
-          Sam W.
-        </div>
-        <div>Owes <strong>£4.99</strong></div>
-      </div>
-      <div class="attendee-item">
-        <div class="attendee-left">
-          <div class="avatar-circle" style="background:#ffd0f0;">N</div>
-          Navya K.
-        </div>
-        <div>Owes <strong>£3.25</strong></div>
-      </div>
-      <div class="attendee-item">
-        <div class="attendee-left">
-          <div class="avatar-circle" style="background:#d2f3d1;">D</div>
-          Dong L.
-        </div>
-        <div>Owes <strong>£3.50</strong></div>
-      </div>
-      <div class="attendee-item">
-        <div class="attendee-left">
-          <div class="avatar-circle" style="background:#dab9ff;">A</div>
-          Aisha W.
-        </div>
-        <div>Owes <strong>£2.76</strong></div>
-      </div>
-      <div class="attendee-item" style="color:var(--muted);">
-        <div class="attendee-left">
-          <div class="avatar-circle">+</div>
-          Add someone...
-        </div>
-      </div>
-    </div>
+  <div id="billSplitView" class="hidden">
+    <div class="bill-card" id="billCard"></div>
 
-    <div class="total-row">Total &nbsp; <strong>£14.50</strong></div>
-    <button id="splitBillBtn" class="primary-btn" type="button">Split Bill</button>
+    <div class="section">
+      <div style="font-weight:700;margin-bottom:8px;">Attendees</div>
+      <div id="billAttendees" class="attendee-list"></div>
+
+      <div class="total-row">Total &nbsp; <strong id="billTotal">£0</strong></div>
+      <button id="splitBillBtn" class="primary-btn" type="button">Split Bill</button>
+    </div>
   </div>
 </div>

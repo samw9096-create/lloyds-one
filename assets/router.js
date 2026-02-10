@@ -8,8 +8,8 @@ export function normalizePath(path) {
 }
 
 export function currentPath() {
-  // default to home if no hash
-  const hash = window.location.hash || "#/home";
+  // default to splash if no hash
+  const hash = window.location.hash || "#/splash";
   const pathWithQuery = hash.startsWith("#") ? hash.slice(1) : hash; // "/home" or "/insights?..."
   return normalizePath(pathWithQuery);
 }

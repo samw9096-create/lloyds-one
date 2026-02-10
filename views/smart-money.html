@@ -1,0 +1,79 @@
+<div class="container">
+  <header class="top-bar">
+    <div class="brand">
+      <img class="brand-logo" src="./one-logo.png" alt="One" />
+    </div>
+    <button class="avatar-btn" aria-label="Profile"></button>
+  </header>
+
+  <h1 class="page-title">Smart Money Table</h1>
+  <p class="muted">A live, spreadsheet-like budget that adapts as your income and spending change.</p>
+
+  <div class="card" style="padding:14px;">
+    <div class="smt-summary">
+      <div>
+        <div class="muted" style="font-size:12px;">Monthly income</div>
+        <div class="smt-income">
+          <span>£</span>
+          <input id="smtIncome" class="smt-income-input" type="number" min="0" step="10" />
+        </div>
+      </div>
+      <div class="smt-safe">
+        <div class="muted" style="font-size:12px;">Unallocated</div>
+        <div id="smtUnallocated" class="smt-safe-value">£0</div>
+      </div>
+    </div>
+    <div id="smtWarning" class="smt-warning"></div>
+  </div>
+
+  <div class="card" style="padding:14px;margin-top:16px;">
+    <div style="font-weight:700;margin-bottom:8px;">What if?</div>
+    <div class="smt-whatif">
+      <label>
+        Income change
+        <input id="smtIncomeDelta" type="range" min="-500" max="500" step="50" />
+        <span id="smtIncomeDeltaVal" class="muted">£0</span>
+      </label>
+      <label>
+        Rent change
+        <input id="smtRentDelta" type="range" min="-200" max="400" step="25" />
+        <span id="smtRentDeltaVal" class="muted">£0</span>
+      </label>
+      <label>
+        Savings goal change
+        <input id="smtSavingsDelta" type="range" min="-200" max="400" step="25" />
+        <span id="smtSavingsDeltaVal" class="muted">£0</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="smt-table-wrap">
+    <div class="smt-table-header">
+      <div>Bucket</div>
+      <div>Rule</div>
+      <div>Planned</div>
+      <div>Spent</div>
+      <div>Remaining</div>
+      <div>Status</div>
+    </div>
+    <div id="smtRows"></div>
+  </div>
+
+  <div class="card" style="padding:14px;margin-top:16px;">
+    <div style="font-weight:700;margin-bottom:8px;">Add bucket</div>
+    <div class="smt-add">
+      <input id="smtNewName" class="input" type="text" placeholder="Bucket name" />
+      <select id="smtNewRule" class="select">
+        <option value="fixed">Fixed amount</option>
+        <option value="percent">% of income</option>
+        <option value="leftover">Whatever's left</option>
+      </select>
+      <input id="smtNewValue" class="input" type="number" min="0" step="10" placeholder="Value" />
+      <select id="smtNewLimit" class="select">
+        <option value="hard">Hard limit</option>
+        <option value="soft">Soft limit</option>
+      </select>
+      <button id="smtAddBtn" class="primary-btn" type="button">Add</button>
+    </div>
+  </div>
+</div>

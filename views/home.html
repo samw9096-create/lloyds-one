@@ -6,24 +6,66 @@
     <button class="avatar-btn" aria-label="Profile"></button>
   </header>
 
-  <h1>Good Morning, Nathaniel!</h1>
+  <h1>Hello, <span id="homeName">there</span>!</h1>
 
   <section class="balance-card">
     <div class="balance-title">LLOYDS</div>
-    <div class="balance-amount">£123.67</div>
+    <div id="homeBalanceAmount" class="balance-amount">£123.67</div>
     <div class="balance-meta">12-34-56 • 12345678</div>
-    <button class="balance-chip" type="button" aria-label="Card">
+    <button id="balanceExpand" class="balance-chip" type="button" aria-label="Expand card">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Zm0 3h16V9H4Z"/></svg>
     </button>
   </section>
 
-  <div class="action-row">
-    <button class="action-btn" type="button">Add Money</button>
-    <button id="homeSendMoney" class="action-btn" type="button">Send Money</button>
-    <button id="homeBudgetPots" class="action-btn" type="button">More</button>
+  <div id="cardOverlay" class="card-overlay hidden">
+    <div class="card-overlay-panel">
+      <div class="card-overlay-header">
+        <div>
+          <div class="muted" style="font-size:12px;">LLOYDS</div>
+          <div id="homeBalanceOverlayAmount" class="card-overlay-balance">£123.67</div>
+          <div class="muted">12-34-56 • 12345678</div>
+        </div>
+        <div class="card-overlay-actions">
+          <button id="cardOverlayHide" class="action-btn" type="button">Hide</button>
+          <button id="cardOverlayClose" class="icon-btn" type="button" aria-label="Close">✕</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="card-details-grid" id="cardDetails">
+          <div class="card-detail">
+            <span class="muted">Card type</span>
+            <strong class="card-private">Debit</strong>
+          </div>
+          <div class="card-detail">
+            <span class="muted">Card number</span>
+            <strong class="card-private">4532 3187 2345 9021</strong>
+          </div>
+          <div class="card-detail">
+            <span class="muted">Expiry</span>
+            <strong class="card-private">09/27</strong>
+          </div>
+          <div class="card-detail">
+            <span class="muted">CVV</span>
+            <strong class="card-private">482</strong>
+          </div>
+          <div class="card-detail">
+            <span class="muted">Account name</span>
+            <strong class="card-private" id="cardAccountName">Your name</strong>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="section">
+  <div class="action-row">
+    <button id="homeAddMoney" class="action-btn" type="button">Add Money</button>
+    <button id="homeSendMoney" class="action-btn" type="button">Send Money</button>
+    <button id="homeBudgetPots" class="action-btn" type="button">Pots</button>
+  </div>
+
+  <div id="homeWidgets" class="home-widgets">
+  <div class="section" data-widget="transactions">
     <div style="display:flex;align-items:center;justify-content:space-between;">
       <h2>Transaction History</h2>
       <div class="segmented" aria-label="Filter">
@@ -33,46 +75,151 @@
       </div>
     </div>
 
-    <div class="transaction-list">
-      <div class="transaction-item" data-transaction="expense">
-        <div class="transaction-info">
-          <div class="transaction-icon">🛍️</div>
-          <div>
-            <div><strong>Sainsbury's</strong></div>
-            <div class="transaction-meta">5th Dec</div>
-          </div>
-        </div>
-        <div class="transaction-amount">£2.59</div>
+    <div id="homeTransactionList" class="transaction-list"></div>
+    <div id="homeTransactionEmpty" class="muted" style="margin-top:10px;display:none;">No transactions yet.</div>
+  </div>
+
+  <div class="section" data-widget="pots">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <h2>Budget Pots</h2>
+      <button id="viewAllPots" class="text-link" type="button">View all</button>
+    </div>
+
+    <div class="pots-grid">
+      <button class="pot-card green pot-link" data-to="/pot-house" type="button">
+        <div style="font-size:18px;">£12,256</div>
+        <div style="font-size:12px;">46% of goal</div>
+        <div style="margin-top:8px;">🏠 House Deposit</div>
+      </button>
+      <button class="pot-card blue pot-link" data-to="/pot-car" type="button">
+        <div style="font-size:18px;">£3,456</div>
+        <div style="font-size:12px;">70% of goal</div>
+        <div style="margin-top:8px;">🚗 New Car</div>
+      </button>
+      <button class="pot-card purple pot-link" data-to="/pot-savings" type="button">
+        <div style="font-size:18px;">£789</div>
+        <div style="font-size:12px;">Savings</div>
+        <div style="margin-top:8px;">🐷 Savings</div>
+      </button>
+      <button class="pot-card blank pot-link" data-to="/budget-pots" type="button">
+        <div>+ New Pot</div>
+      </button>
+    </div>
+
+    <div class="balance-box">
+      <div>
+        <div style="font-weight:800;font-size:18px;">£16,590</div>
+        <div style="font-size:12px;color:var(--muted);">Total balance</div>
       </div>
-      <div class="transaction-item" data-transaction="expense">
-        <div class="transaction-info">
-          <div class="transaction-icon">📦</div>
-          <div>
-            <div><strong>Amazon</strong></div>
-            <div class="transaction-meta">5th Dec</div>
-          </div>
+      <button class="primary-btn" type="button" style="width:auto;padding:10px 14px;">Move Money</button>
+    </div>
+  </div>
+
+  <div class="section" data-widget="shopping">
+    <div class="card widget-card">
+      <div class="widget-top">
+        <div class="widget-title">
+          <span class="widget-ico">🛒</span>
+          Shopping list
         </div>
-        <div class="transaction-amount">£5.99</div>
+        <button id="openShoppingList" class="action-btn" type="button">Open</button>
       </div>
-      <div class="transaction-item" data-transaction="expense">
-        <div class="transaction-info">
-          <div class="transaction-icon">🍔</div>
-          <div>
-            <div><strong>McDonald's</strong></div>
-            <div class="transaction-meta">5th Dec</div>
-          </div>
-        </div>
-        <div class="transaction-amount">£2.76</div>
+      <div class="widget-body">
+        <div class="widget-chip">3 items • 2 checked</div>
+        <div class="widget-preview">Milk • Bananas • Pasta</div>
       </div>
-      <div class="transaction-item" data-transaction="income">
-        <div class="transaction-info">
-          <div class="transaction-icon">💷</div>
-          <div>
-            <div><strong>Salary</strong></div>
-            <div class="transaction-meta">1st Dec</div>
+    </div>
+  </div>
+
+  <div class="section" data-widget="smart-money">
+    <div class="card widget-card">
+      <div class="widget-top">
+        <div class="widget-title">
+          <span class="widget-ico">📊</span>
+          Smart Money Table
+        </div>
+        <button id="openSmartMoney" class="action-btn" type="button">Open</button>
+      </div>
+      <div class="widget-body">
+        <div class="widget-progress">
+          <div class="progress-track"><div class="progress-fill" style="width:72%;"></div></div>
+          <span class="muted">£680 unallocated</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" data-widget="learn">
+    <div class="card widget-card">
+      <div class="widget-top">
+        <div class="widget-title">
+          <span class="widget-ico">🎓</span>
+          Learn progress
+        </div>
+        <button id="openLearn" class="action-btn" type="button">Open</button>
+      </div>
+      <div class="widget-body">
+        <div class="widget-progress">
+          <div class="progress-track"><div class="progress-fill" style="width:40%;"></div></div>
+          <span class="muted">2 of 5 quizzes done</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" data-widget="insights">
+    <div class="card widget-card">
+      <div class="widget-top">
+        <div class="widget-title">
+          <span class="widget-ico">🧠</span>
+          AI Insights
+        </div>
+        <button id="openInsights" class="action-btn" type="button">Open</button>
+      </div>
+      <div class="widget-body">
+        <div class="insights-mini-card">
+          <div class="insights-mini-top">
+            <div>
+              <div class="muted" style="font-size:12px;">Spending snapshot</div>
+              <div id="homeInsightsTotal" class="insights-total">£0</div>
+            </div>
+            <div class="insights-mini-tabs">
+              <button class="insights-chip active" data-period="week" type="button">Week</button>
+              <button class="insights-chip" data-period="month" type="button">Month</button>
+              <button class="insights-chip" data-period="year" type="button">Year</button>
+            </div>
+          </div>
+          <div class="insights-mini-body">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <circle cx="60" cy="60" r="44" fill="none" stroke="#e2efe8" stroke-width="14" />
+              <circle id="homeInsightsDonut" cx="60" cy="60" r="44" fill="none" stroke="#0aa85d" stroke-width="14" stroke-dasharray="0 276" stroke-linecap="round" />
+              <text id="homeInsightsLabel" x="60" y="60" text-anchor="middle" dy="6" font-size="16" font-weight="700" fill="#0f3a26">0%</text>
+            </svg>
+            <div id="homeInsightsLegend" class="insights-mini-legend"></div>
           </div>
         </div>
-        <div class="transaction-amount">£1,200</div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div class="section">
+    <div class="card widget-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div>
+          <div style="font-weight:700;">Arrange home widgets</div>
+          <div class="muted" style="font-size:12px;">Reorder sections to match your priorities</div>
+        </div>
+        <button id="homeArrangeBtn" class="action-btn" type="button">Arrange</button>
+      </div>
+      <div id="homeArrangePanel" class="arrange-panel hidden">
+        <div class="arrange-hint">
+          Drag the cards above to reorder your home screen. Your layout saves when you hit Save.
+        </div>
+        <div class="arrange-actions">
+          <button id="arrangeCancel" class="action-btn" type="button">Cancel</button>
+          <button id="arrangeSave" class="primary-btn" type="button">Save</button>
+        </div>
       </div>
     </div>
   </div>

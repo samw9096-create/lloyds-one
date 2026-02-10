@@ -1,0 +1,70 @@
+<div class="container">
+  <header class="top-bar">
+    <div class="brand">
+      <img class="brand-logo" src="./one-logo.png" alt="One" />
+    </div>
+    <button class="avatar-btn" aria-label="Profile"></button>
+  </header>
+
+  <h1 class="page-title">Account</h1>
+
+  <div class="card" style="padding:14px;">
+    <div class="account-header">
+      <div class="account-avatar" id="accountAvatar">?</div>
+      <div>
+        <div class="account-name" id="accountName">Your name</div>
+        <div class="muted" id="accountConfidence">Financial confidence</div>
+        <div class="muted" id="accountEmail">Email</div>
+      </div>
+    </div>
+
+    <div class="account-actions">
+      <button id="editAvatarBtn" class="action-btn" type="button">Add/Edit photo</button>
+      <button id="removeAvatarBtn" class="action-btn" type="button">Remove photo</button>
+      <input id="avatarInput" type="file" accept="image/*" style="display:none;" />
+    </div>
+  </div>
+
+  <div class="section">
+    <div style="font-weight:700;margin-bottom:8px;">Interests</div>
+    <div id="accountInterests" class="interest-grid"></div>
+  </div>
+
+  <div class="section">
+    <div class="card" style="padding:12px;">
+      <div class="muted" style="font-size:12px;">Member since</div>
+      <div id="accountCreated" style="font-weight:700;">—</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="settings-list">
+      <div class="settings-item">
+        <span>Friends</span>
+        <button id="openFriendsBtn" class="action-btn" type="button">View</button>
+      </div>
+      <div class="settings-item">
+        <span>App tutorial</span>
+        <button id="openTutorialBtn" class="action-btn" type="button">Start</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div style="font-weight:700;margin-bottom:8px;">Account actions</div>
+    <div class="settings-list">
+      <div class="settings-item">
+        <span>Sign out</span>
+        <button id="accountSignOutBtn" class="action-btn" type="button">Sign out</button>
+      </div>
+      <div class="settings-item">
+        <span>Reset account</span>
+        <button id="accountResetBtn" class="action-btn" type="button">Reset</button>
+      </div>
+      <div class="settings-item">
+        <span>Delete account</span>
+        <button id="accountDeleteBtn" class="action-btn" type="button">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
