@@ -27,7 +27,8 @@ const STORAGE_KEYS = {
   helper: "chosenHelper",
   interests: "chosenInterests",
   mode: "appMode",
-  theme: "appTheme"
+  theme: "appTheme",
+  friendReqSeenCount: "friendReqSeenCount"
 };
 
 const POT_COLORS = ["#bfeeda", "#9fe2ef", "#d9b0e9", "#ffd7b5", "#c6f0ff", "#d6f7c2"];
@@ -70,6 +71,24 @@ function showConfirmation(message = "Done") {
     overlay.classList.remove("show");
     go("/home");
   }, 1000);
+}
+
+function showTopNotification(message) {
+  let toast = document.querySelector("#topGoalToast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "topGoalToast";
+    toast.className = "top-goal-toast";
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.classList.remove("show");
+  // Restart animation for rapid consecutive completions
+  void toast.offsetWidth;
+  toast.classList.add("show");
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2400);
 }
 
 const SETTINGS_DEFAULTS = {
@@ -166,6 +185,14 @@ export async function initView(path) {
     actions.appendChild(avatar);
     topBar.appendChild(actions);
   }
+
+  const pendingRequests = Array.isArray(profile.friendRequests) ? profile.friendRequests.length : 0;
+  const seenCount = Number(localStorage.getItem(STORAGE_KEYS.friendReqSeenCount) || 0);
+  if (pendingRequests > seenCount) {
+    const label = pendingRequests === 1 ? "friend request" : "friend requests";
+    showTopNotification(`You have ${pendingRequests} new ${label}`);
+  }
+  localStorage.setItem(STORAGE_KEYS.friendReqSeenCount, String(pendingRequests));
 
   if (path === "/login") return initLogin();
   if (path === "/splash") return initSplash();
@@ -804,22 +831,15 @@ function initSmartMoney() {
   const newName = document.querySelector("#smtNewName");
   const newRule = document.querySelector("#smtNewRule");
   const newValue = document.querySelector("#smtNewValue");
-  const newLimit = document.querySelector("#smtNewLimit");
-  const incomeDelta = document.querySelector("#smtIncomeDelta");
-  const rentDelta = document.querySelector("#smtRentDelta");
-  const savingsDelta = document.querySelector("#smtSavingsDelta");
-  const incomeDeltaVal = document.querySelector("#smtIncomeDeltaVal");
-  const rentDeltaVal = document.querySelector("#smtRentDeltaVal");
-  const savingsDeltaVal = document.querySelector("#smtSavingsDeltaVal");
 
   const state = {
     income: 2400,
     buckets: [
-      { id: "rent", name: "Rent", rule: "fixed", value: 800, limit: "hard" },
-      { id: "food", name: "Food", rule: "percent", value: 20, limit: "soft" },
-      { id: "fun", name: "Fun", rule: "percent", value: 8, limit: "soft" },
-      { id: "savings", name: "Savings", rule: "fixed", value: 300, limit: "hard" },
-      { id: "leftover", name: "Leftover", rule: "leftover", value: 0, limit: "soft" }
+      { id: "rent", name: "Rent", rule: "fixed", value: 800 },
+      { id: "food", name: "Food", rule: "percent", value: 20 },
+      { id: "fun", name: "Fun", rule: "percent", value: 8 },
+      { id: "savings", name: "Savings", rule: "fixed", value: 300 },
+      { id: "leftover", name: "Leftover", rule: "leftover", value: 0 }
     ],
     spent: {
       rent: 800,
@@ -827,11 +847,6 @@ function initSmartMoney() {
       fun: 120,
       savings: 200,
       leftover: 0
-    },
-    deltas: {
-      income: 0,
-      rent: 0,
-      savings: 0
     }
   };
 
@@ -844,11 +859,7 @@ function initSmartMoney() {
   };
 
   const recompute = () => {
-    const effectiveIncome = state.income + state.deltas.income;
-    const rentBucket = state.buckets.find((b) => b.id === "rent");
-    const savingsBucket = state.buckets.find((b) => b.id === "savings");
-    if (rentBucket) rentBucket.value = 800 + state.deltas.rent;
-    if (savingsBucket) savingsBucket.value = 300 + state.deltas.savings;
+    const effectiveIncome = state.income;
 
     const planned = {};
     let totalPlanned = 0;
@@ -870,11 +881,11 @@ function initSmartMoney() {
     return { planned, effectiveIncome, totalPlanned, leftover };
   };
 
-  const statusFor = (planned, spent, limit) => {
+  const statusFor = (planned, spent) => {
     if (planned <= 0) return { status: "neutral", why: "No planned amount yet." };
     const ratio = spent / planned;
     if (spent > planned) {
-      return { status: "red", why: limit === "hard" ? "Hard limit exceeded." : "Soft limit exceeded." };
+      return { status: "red", why: "Spending has exceeded the planned amount." };
     }
     if (ratio >= 0.85) return { status: "yellow", why: "Spending is close to the plan." };
     return { status: "green", why: "On track with the plan." };
@@ -882,9 +893,6 @@ function initSmartMoney() {
 
   const render = () => {
     if (incomeInput) incomeInput.value = String(state.income);
-    if (incomeDelta && incomeDeltaVal) incomeDeltaVal.textContent = fmt(state.deltas.income);
-    if (rentDelta && rentDeltaVal) rentDeltaVal.textContent = fmt(state.deltas.rent);
-    if (savingsDelta && savingsDeltaVal) savingsDeltaVal.textContent = fmt(state.deltas.savings);
 
     const { planned, effectiveIncome, totalPlanned, leftover } = recompute();
     const unallocated = leftover;
@@ -901,22 +909,57 @@ function initSmartMoney() {
       const plannedAmt = planned[b.id] ?? 0;
       const spent = state.spent[b.id] ?? 0;
       const remaining = plannedAmt - spent;
-      const status = statusFor(plannedAmt, spent, b.limit);
+      const status = statusFor(plannedAmt, spent);
 
+      const ratio = plannedAmt ? Math.min(100, (spent / plannedAmt) * 100) : 0;
       const row = document.createElement("div");
       row.className = "smt-row";
       row.innerHTML = `
-        <div class=\"smt-cell\">\n          <input class=\"smt-name\" value=\"${b.name}\" />\n          <div class=\"muted\" style=\"font-size:11px;\">${b.limit === "hard" ? "Hard limit" : "Soft limit"}</div>\n        </div>\n        <div class=\"smt-cell\">\n          <select class=\"smt-rule\">\n            <option value=\"fixed\" ${b.rule === "fixed" ? "selected" : ""}>Fixed</option>\n            <option value=\"percent\" ${b.rule === "percent" ? "selected" : ""}>% of income</option>\n            <option value=\"leftover\" ${b.rule === "leftover" ? "selected" : ""}>Leftover</option>\n          </select>\n          <input class=\"smt-value\" type=\"number\" ${b.rule === "leftover" ? "disabled" : ""} value=\"${b.value}\" />\n        </div>\n        <div class=\"smt-cell\">${fmt(plannedAmt)}</div>\n        <div class=\"smt-cell\">\n          <div>${fmt(spent)}</div>\n          <div class=\"smt-bar\"><span style=\"width:${plannedAmt ? Math.min(100, (spent / plannedAmt) * 100) : 0}%;\"></span></div>\n        </div>\n        <div class=\"smt-cell\">${fmt(remaining)}</div>\n        <div class=\"smt-cell\">\n          <span class=\"smt-status ${status.status}\"></span>\n          <button class=\"smt-why\" type=\"button\">Why?</button>\n        </div>\n      `;
+        <div class=\"smt-cell smt-cell-bucket\">
+          <input class=\"smt-name\" value=\"${b.name}\" />
+          <div class=\"muted\" style=\"font-size:11px;\">${b.rule === "leftover" ? "Auto-balancing bucket" : "Manual rule"}</div>
+        </div>
+        <div class=\"smt-cell smt-cell-plan\">
+          <select class=\"smt-rule\">
+            <option value=\"fixed\" ${b.rule === "fixed" ? "selected" : ""}>Fixed</option>
+            <option value=\"percent\" ${b.rule === "percent" ? "selected" : ""}>% income</option>
+            <option value=\"leftover\" ${b.rule === "leftover" ? "selected" : ""}>Leftover</option>
+          </select>
+          <input class=\"smt-value\" type=\"number\" ${b.rule === "leftover" ? "disabled" : ""} value=\"${b.value}\" />
+        </div>
+        <div class=\"smt-cell\">${fmt(plannedAmt)}</div>
+        <div class=\"smt-cell\">
+          <div class="smt-amount">${fmt(spent)}</div>
+          <div class=\"smt-bar\"><span style=\"width:${ratio}%;\"></span></div>
+        </div>
+        <div class=\"smt-cell\">${fmt(remaining)}</div>
+        <div class=\"smt-cell smt-cell-status\">
+          <span class=\"smt-status ${status.status}\"></span>
+          <button class=\"smt-why\" type=\"button\">Why?</button>
+          <button class="smt-remove" type="button" aria-label="Remove bucket" title="Remove bucket">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-1 6h2v9H8V9Zm6 0h2v9h-2V9ZM6 9h2v9H6V9Zm2 12h8a2 2 0 0 0 2-2V9H6v10a2 2 0 0 0 2 2Z"/></svg>
+          </button>
+        </div>
+      `;
 
       const nameInput = row.querySelector(".smt-name");
       const ruleSelect = row.querySelector(".smt-rule");
       const valueInput = row.querySelector(".smt-value");
       const whyBtn = row.querySelector(".smt-why");
+      const removeBtn = row.querySelector(".smt-remove");
 
       if (nameInput) nameInput.onchange = () => { b.name = nameInput.value.trim() || b.name; };
       if (ruleSelect) ruleSelect.onchange = () => { b.rule = ruleSelect.value; render(); };
       if (valueInput) valueInput.onchange = () => { b.value = Number(valueInput.value || 0); render(); };
       if (whyBtn) whyBtn.onclick = () => alert(`${b.name}: ${status.why}`);
+      if (removeBtn) {
+        removeBtn.onclick = () => {
+          if (state.buckets.length <= 1) return;
+          state.buckets = state.buckets.filter((bucket) => bucket.id !== b.id);
+          delete state.spent[b.id];
+          render();
+        };
+      }
 
       rowsWrap.appendChild(row);
     });
@@ -929,18 +972,13 @@ function initSmartMoney() {
     };
   }
 
-  if (incomeDelta) incomeDelta.oninput = () => { state.deltas.income = Number(incomeDelta.value || 0); render(); };
-  if (rentDelta) rentDelta.oninput = () => { state.deltas.rent = Number(rentDelta.value || 0); render(); };
-  if (savingsDelta) savingsDelta.oninput = () => { state.deltas.savings = Number(savingsDelta.value || 0); render(); };
-
   if (addBtn) {
     addBtn.onclick = () => {
       const name = newName?.value?.trim();
       if (!name) return;
       const rule = newRule?.value || "fixed";
       const value = Number(newValue?.value || 0);
-      const limit = newLimit?.value || "soft";
-      state.buckets.push({ id: `b_${Date.now()}`, name, rule, value, limit });
+      state.buckets.push({ id: `b_${Date.now()}`, name, rule, value });
       if (newName) newName.value = "";
       if (newValue) newValue.value = "";
       render();
@@ -1053,19 +1091,18 @@ function initPayments() {
 
   const loadRecipients = async () => {
     if (!sendToSelect) return;
-    const user = await getSupabaseUser();
     try {
-      const users = await fetchUsers();
+      const profile = await getProfile();
+      const friends = Array.isArray(profile.friends) ? profile.friends : [];
       sendToSelect.innerHTML = '<option value="">Select recipient</option>';
-      const list = users.filter((u) => u.id !== user?.id);
-      if (!list.length) {
+      if (!friends.length) {
         const opt = document.createElement("option");
         opt.value = "";
-        opt.textContent = "No other users found";
+        opt.textContent = "No friends added yet";
         sendToSelect.appendChild(opt);
         return;
       }
-      list.forEach((u) => {
+      friends.forEach((u) => {
         const opt = document.createElement("option");
         opt.value = u.id;
         opt.textContent = u.name || u.id.slice(0, 6);
@@ -1412,8 +1449,13 @@ function initAddToPot() {
       const pots = await getBudgetPots();
       const pot = pots.find((p) => p.id === potId);
       if (!pot) return alert("Pot not found.");
+      const prevBalance = Number(pot.balance) || 0;
       pot.balance = Number(pot.balance) + amount;
       await setBudgetPots(pots);
+      const goal = Number(pot.goal) || 0;
+      if (goal > 0 && prevBalance < goal && Number(pot.balance) >= goal) {
+        showTopNotification(`${pot.emoji || "Pot"} ${pot.name} goal completed`);
+      }
       showConfirmation("Money added");
     };
   }
@@ -1963,17 +2005,29 @@ function initFriends() {
 
   const search = async (query) => {
     const profile = await getProfile();
-    const directory = Array.isArray(profile.friendDirectory) ? profile.friendDirectory : [];
     const friends = Array.isArray(profile.friends) ? profile.friends : [];
     const requests = Array.isArray(profile.friendRequests) ? profile.friendRequests : [];
+    const currentUser = await getSupabaseUser();
     const q = query.trim().toLowerCase();
     if (!results) return;
     results.innerHTML = "";
     if (!q) return;
 
-    const matches = directory.filter((p) =>
-      p.name.toLowerCase().includes(q) || (p.handle || "").toLowerCase().includes(q)
-    );
+    let directory = [];
+    try {
+      const users = await fetchUsers();
+      directory = users
+        .filter((u) => u.id !== currentUser?.id)
+        .map((u) => ({ id: u.id, name: u.name || "User", handle: "" }));
+    } catch {
+      const empty = document.createElement("div");
+      empty.className = "muted";
+      empty.textContent = "Search unavailable right now.";
+      results.appendChild(empty);
+      return;
+    }
+
+    const matches = directory.filter((p) => p.name.toLowerCase().includes(q));
 
     if (!matches.length) {
       const empty = document.createElement("div");
