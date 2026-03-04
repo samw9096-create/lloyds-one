@@ -1,0 +1,46 @@
+{
+  "categories": [
+    { "name": "Bills", "color": "#2c8f63", "monthlyTarget": 520, "keywords": ["rent", "bill", "electric", "gas", "water", "broadband", "insurance", "council"] },
+    { "name": "Groceries", "color": "#0aa85d", "monthlyTarget": 260, "keywords": ["tesco", "sainsbury", "aldi", "lidl", "coop", "asda", "grocery", "food shop"] },
+    { "name": "Transport", "color": "#45be87", "monthlyTarget": 170, "keywords": ["uber", "tfl", "train", "bus", "petrol", "fuel", "parking"] },
+    { "name": "Eating Out", "color": "#7dd3ae", "monthlyTarget": 190, "keywords": ["cafe", "coffee", "restaurant", "takeaway", "deliveroo", "ubereats", "mcdonald"] },
+    { "name": "Shopping", "color": "#a3dec2", "monthlyTarget": 150, "keywords": ["amazon", "asos", "primark", "apple", "argos", "shop"] },
+    { "name": "Leisure", "color": "#c5ebda", "monthlyTarget": 120, "keywords": ["netflix", "spotify", "cinema", "gym", "game", "disney"] },
+    { "name": "Transfers", "color": "#dff5ea", "monthlyTarget": 110, "keywords": ["transfer", "send", "payment"] },
+    { "name": "Other", "color": "#ecf9f3", "monthlyTarget": 90, "keywords": [] }
+  ],
+  "syntheticTransactions": [
+    { "description": "Monthly rent", "category": "Bills", "amount": 780, "kind": "expense", "dayOffset": 3 },
+    { "description": "Energy bill", "category": "Bills", "amount": 96, "kind": "expense", "dayOffset": 9 },
+    { "description": "Broadband direct debit", "category": "Bills", "amount": 34, "kind": "expense", "dayOffset": 15 },
+    { "description": "Weekly groceries", "category": "Groceries", "amount": 62, "kind": "expense", "dayOffset": 2 },
+    { "description": "Top-up groceries", "category": "Groceries", "amount": 28, "kind": "expense", "dayOffset": 6 },
+    { "description": "Bus and train travel", "category": "Transport", "amount": 34, "kind": "expense", "dayOffset": 5 },
+    { "description": "Ride share", "category": "Transport", "amount": 19, "kind": "expense", "dayOffset": 12 },
+    { "description": "Coffee and lunch", "category": "Eating Out", "amount": 24, "kind": "expense", "dayOffset": 1 },
+    { "description": "Dinner out", "category": "Eating Out", "amount": 41, "kind": "expense", "dayOffset": 11 },
+    { "description": "Online shopping order", "category": "Shopping", "amount": 46, "kind": "expense", "dayOffset": 8 },
+    { "description": "Gym membership", "category": "Leisure", "amount": 33, "kind": "expense", "dayOffset": 7 },
+    { "description": "Streaming subscriptions", "category": "Leisure", "amount": 21, "kind": "expense", "dayOffset": 13 },
+    { "description": "Salary payment", "category": "Income", "amount": 1850, "kind": "income", "dayOffset": 4 },
+    { "description": "Freelance payout", "category": "Income", "amount": 320, "kind": "income", "dayOffset": 10 }
+  ],
+  "analysisTemplates": {
+    "momentumHigh": [
+      "Spending has accelerated versus the previous period. Keep discretionary spending capped for the next few days to flatten the curve.",
+      "Your latest trend is running hotter than normal. Consider pausing low-priority purchases until the next income event."
+    ],
+    "momentumStable": [
+      "Spending momentum is relatively stable and close to your recent baseline.",
+      "Your trend is consistent with your usual pattern, which improves predictability for upcoming bills."
+    ],
+    "topCategoryPressure": [
+      "The top category is above its typical target. Tightening this area will have the biggest impact on your month-end balance.",
+      "Most of the pressure comes from one category. Reducing just that category would improve your cash buffer quickly."
+    ],
+    "topCategoryHealthy": [
+      "Your largest category is still within a healthy range compared with the reference target.",
+      "Category mix looks balanced overall, with no single area heavily over target."
+    ]
+  }
+}

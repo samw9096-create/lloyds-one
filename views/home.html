@@ -66,9 +66,14 @@
 
   <div id="homeWidgets" class="home-widgets">
   <div class="section" data-widget="transactions">
-    <div style="display:flex;align-items:center;justify-content:space-between;">
-      <h2>Transaction History</h2>
-      <div class="segmented" aria-label="Filter">
+    <div class="home-section-head">
+      <h2 class="home-section-title">Transaction History</h2>
+      <div class="home-section-actions">
+        <button id="viewAllTransactions" class="text-link home-view-link" type="button">View all transactions</button>
+      </div>
+    </div>
+    <div class="home-filter-row">
+      <div class="segmented home-transaction-filter" aria-label="Filter">
         <button class="active" data-filter="all" type="button">All</button>
         <button data-filter="income" type="button">Income</button>
         <button data-filter="expense" type="button">Expenses</button>
@@ -80,9 +85,11 @@
   </div>
 
   <div class="section" data-widget="pots">
-    <div style="display:flex;align-items:center;justify-content:space-between;">
-      <h2>Budget Pots</h2>
-      <button id="viewAllPots" class="text-link" type="button">View all</button>
+    <div class="home-section-head">
+      <h2 class="home-section-title">Budget Pots</h2>
+      <div class="home-section-actions">
+        <button id="viewAllPots" class="text-link home-view-link" type="button">View all pots</button>
+      </div>
     </div>
 
     <div id="homePotGrid" class="pots-grid"></div>

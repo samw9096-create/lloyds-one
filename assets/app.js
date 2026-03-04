@@ -14,6 +14,7 @@ export const routes = {
   "/home": "./views/home.html",
   "/account": "./views/account.html",
   "/friends": "./views/friends.html",
+  "/dms": "./views/dms.html",
   "/shopping-list": "./views/shopping-list.html",
   "/smart-money": "./views/smart-money.html",
   "/tutorial": "./views/tutorial.html",
@@ -85,6 +86,7 @@ async function render() {
     "/home",
     "/account",
     "/friends",
+    "/dms",
     "/shopping-list",
     "/smart-money",
     "/tutorial",
@@ -128,7 +130,6 @@ async function render() {
   await loadView(path);
 }
 
-window.addEventListener("popstate", render);
 window.addEventListener("hashchange", render);
 window.addEventListener("routechange", render);
 

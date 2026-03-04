@@ -2,7 +2,65 @@ import { get, set, del } from "./storage.js";
 import { supabase } from "./supabase.js";
 
 const AUTH_KEY = "auth_state";
-const PROFILE_KEY = "profile";
+const PROFILE_KEY_LEGACY = "profile";
+const PROFILE_KEY_PREFIX = "profile:";
+const FAKE_FRIEND_COUNT = 10;
+const FAKE_FRIEND_POOL = [
+  "Alex Carter",
+  "Jordan Bell",
+  "Taylor Brooks",
+  "Casey Morgan",
+  "Riley Turner",
+  "Avery Hayes",
+  "Cameron Price",
+  "Dylan Foster",
+  "Harper Lane",
+  "Parker Reed",
+  "Quinn Bailey",
+  "Jamie Cole",
+  "Skyler Grant",
+  "Reese Murphy",
+  "Blake Ellis",
+  "Morgan Shaw",
+  "Rowan West",
+  "Logan Pierce"
+];
+
+function toHandle(name) {
+  return `@${name.toLowerCase().replace(/[^a-z0-9]+/g, "")}`;
+}
+
+function makeFakeFriend(name, index) {
+  return {
+    id: `fake_friend_${index + 1}`,
+    name,
+    handle: toHandle(name)
+  };
+}
+
+function pickRandomNames(count) {
+  const pool = [...FAKE_FRIEND_POOL];
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, count);
+}
+
+function withSeededFakeFriends(profile) {
+  const friends = Array.isArray(profile.friends) ? profile.friends : [];
+  const realFriends = friends.filter((f) => !String(f?.id || "").startsWith("fake_friend_"));
+  const existingFakeById = new Map(
+    friends
+      .filter((f) => String(f?.id || "").startsWith("fake_friend_"))
+      .map((f) => [f.id, f])
+  );
+
+  const chosen = pickRandomNames(FAKE_FRIEND_COUNT);
+  const seededFakes = chosen.map((name, index) => existingFakeById.get(`fake_friend_${index + 1}`) || makeFakeFriend(name, index));
+
+  return { ...profile, friends: [...realFriends, ...seededFakes] };
+}
 
 function bufToB64url(buf) {
   const bytes = new Uint8Array(buf);
@@ -24,10 +82,27 @@ function randomId(prefix = "user") {
   return `${prefix}_${[...a].map(x => x.toString(16).padStart(2, "0")).join("")}`;
 }
 
+function profileKeyForUserId(userId) {
+  const safeUserId = String(userId || "guest").replace(/[^a-zA-Z0-9:_-]/g, "_");
+  return `${PROFILE_KEY_PREFIX}${safeUserId}`;
+}
+
+async function resolveProfileKey() {
+  const user = await getSessionUser();
+  if (user?.id) return profileKeyForUserId(user.id);
+  const auth = await get(AUTH_KEY);
+  if (auth?.userId) return profileKeyForUserId(auth.userId);
+  return profileKeyForUserId("guest");
+}
+
 export async function getAuthState() {
-  const { data } = await supabase.auth.getSession();
-  if (data?.session?.user) {
-    return { signedIn: true, method: "password", userId: data.session.user.id };
+  try {
+    const { data } = await supabase.auth.getSession();
+    if (data?.session?.user) {
+      return { signedIn: true, method: "password", userId: data.session.user.id };
+    }
+  } catch {
+    // Fall back to locally cached auth state when Supabase is unavailable.
   }
   return (await get(AUTH_KEY)) || { signedIn: false };
 }
@@ -51,13 +126,37 @@ export async function signInWithEmail(email, password) {
 }
 
 export async function getSessionUser() {
-  const { data } = await supabase.auth.getUser();
-  return data?.user || null;
+  try {
+    const { data } = await supabase.auth.getUser();
+    return data?.user || null;
+  } catch {
+    return null;
+  }
 }
 
 export async function ensureProfile() {
-  const existing = await get(PROFILE_KEY);
-  if (existing) return existing;
+  const profileKey = await resolveProfileKey();
+  const existing = await get(profileKey);
+  if (existing) {
+    const migrated = withSeededFakeFriends(existing);
+    const existingFriends = Array.isArray(existing.friends) ? existing.friends : [];
+    const migratedFriends = Array.isArray(migrated.friends) ? migrated.friends : [];
+    if (migratedFriends.length !== existingFriends.length) {
+      await set(profileKey, migrated);
+    }
+    return migrated;
+  }
+
+  const sessionUser = await getSessionUser();
+  if (!sessionUser?.id) {
+    const legacy = await get(PROFILE_KEY_LEGACY);
+    if (legacy) {
+      const migratedLegacy = withSeededFakeFriends(legacy);
+      await set(profileKey, migratedLegacy);
+      await del(PROFILE_KEY_LEGACY);
+      return migratedLegacy;
+    }
+  }
 
   const profile = {
     createdAt: new Date().toISOString(),
@@ -104,14 +203,16 @@ export async function ensureProfile() {
     avatarDataUrl: ""
   };
 
-  await set(PROFILE_KEY, profile);
-  return profile;
+  const seeded = withSeededFakeFriends(profile);
+  await set(profileKey, seeded);
+  return seeded;
 }
 
 export async function updateProfile(patch) {
+  const profileKey = await resolveProfileKey();
   const profile = await ensureProfile();
   const next = { ...profile, ...patch, updatedAt: new Date().toISOString() };
-  await set(PROFILE_KEY, next);
+  await set(profileKey, next);
   return next;
 }
 
@@ -186,6 +287,8 @@ export async function passkeySignIn() {
 }
 
 export async function resetLocalApp() {
+  const profileKey = await resolveProfileKey();
   await del(AUTH_KEY);
-  await del(PROFILE_KEY);
+  await del(profileKey);
+  await del(PROFILE_KEY_LEGACY);
 }

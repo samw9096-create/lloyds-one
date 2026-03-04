@@ -1,0 +1,36 @@
+<div class="container">
+  <header class="top-bar">
+    <div class="brand">
+      <img class="brand-logo" src="./one-logo.png" alt="One" />
+    </div>
+    <button class="avatar-btn" aria-label="Profile"></button>
+  </header>
+
+  <h1 class="page-title">DMs</h1>
+
+  <div class="dm-layout">
+    <aside class="dm-people card">
+      <div class="dm-panel-title">Friends</div>
+      <div id="dmFriendList" class="dm-friend-list"></div>
+    </aside>
+
+    <section class="dm-thread card">
+      <div class="dm-thread-head">
+        <div id="dmThreadTitle" class="dm-thread-title">Choose a friend</div>
+      </div>
+
+      <div id="dmThreadMessages" class="dm-thread-messages"></div>
+
+      <div class="dm-actions">
+        <input id="dmAmountInput" class="input" type="number" min="1" step="1" placeholder="Amount (£)" />
+        <button id="dmSendMoneyBtn" class="primary-btn" type="button">Send Money</button>
+        <button id="dmRequestMoneyBtn" class="action-btn" type="button">Request Money</button>
+      </div>
+
+      <div class="dm-compose">
+        <input id="dmMessageInput" class="input" type="text" placeholder="Write a message..." />
+        <button id="dmSendMessageBtn" class="primary-btn" type="button">Send</button>
+      </div>
+    </section>
+  </div>
+</div>

@@ -8,34 +8,49 @@
 
   <h1 class="page-title">Send Money</h1>
 
-  <div class="pill-nav">
-    <button class="active" type="button">Send</button>
-  </div>
+  <div class="payments-shell">
+    <div class="pill-nav">
+      <button class="active" type="button">Send</button>
+    </div>
 
-  <div class="form-field">
-    <label>From</label>
-    <select id="sendFromAccount">
-      <option>Nathaniel's Current Account</option>
-      <option>Savings Account</option>
-    </select>
-  </div>
+    <section class="payments-card">
+      <div class="form-field">
+        <label>From</label>
+        <select id="sendFromAccount">
+          <option>Nathaniel's Current Account</option>
+          <option>Savings Account</option>
+        </select>
+      </div>
 
-  <div class="form-field">
-    <label>To</label>
-    <select id="sendToSelect">
-      <option value="">Select recipient</option>
-    </select>
-  </div>
+      <div class="form-field">
+        <label>To</label>
+        <select id="sendToSelect">
+          <option value="">Select recipient</option>
+        </select>
+      </div>
 
-  <div class="form-field">
-    <label>Amount</label>
-    <input id="sendAmount" class="input" type="text" placeholder="£ 00.00" />
-  </div>
+      <div class="form-field">
+        <label>Amount</label>
+        <input id="sendAmount" class="input" type="text" placeholder="£ 00.00" />
+        <div class="amount-quick-picks">
+          <button type="button">£10</button>
+          <button type="button">£25</button>
+          <button type="button">£50</button>
+          <button type="button">£100</button>
+        </div>
+      </div>
 
-  <div class="form-field">
-    <label>Reference</label>
-    <input id="sendReference" class="input" type="text" placeholder="Enter reference..." />
-  </div>
+      <div class="form-field">
+        <label>Reference</label>
+        <input id="sendReference" class="input" type="text" placeholder="What is this for?" />
+      </div>
 
-  <button id="sendMoneyBtn" class="primary-btn" type="button">Send Money</button>
+      <button id="sendMoneyBtn" class="primary-btn" type="button">Send Money</button>
+    </section>
+
+    <section class="payments-note">
+      <strong>Secure transfer</strong>
+      <p>We use bank-grade encryption and fraud checks before every payment.</p>
+    </section>
+  </div>
 </div>

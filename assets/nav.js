@@ -74,11 +74,11 @@ export function mountBottomNav() {
         </span>
         <span class="nav-label">Deal Dash</span>
       </button>
-      <button class="nav-btn" data-to="/settings" aria-label="Settings">
+      <button class="nav-btn" data-to="/dms" aria-label="DMs">
         <span class="nav-ico">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm8.7 3.2-1.8-.3a7 7 0 0 0-.6-1.4l1.1-1.5-1.5-1.5-1.5 1.1a7 7 0 0 0-1.4-.6l-.3-1.8h-2.1l-.3 1.8a7 7 0 0 0-1.4.6L8.4 6.5 6.9 8l1.1 1.5a7 7 0 0 0-.6 1.4l-1.8.3v2.1l1.8.3a7 7 0 0 0 .6 1.4l-1.1 1.5 1.5 1.5 1.5-1.1a7 7 0 0 0 1.4.6l.3 1.8h2.1l.3-1.8a7 7 0 0 0 1.4-.6l1.5 1.1 1.5-1.5-1.1-1.5a7 7 0 0 0 .6-1.4l1.8-.3v-2.1Z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8A2.5 2.5 0 0 1 17.5 16H9l-5 5v-5.5A2.5 2.5 0 0 1 1.5 13V5.5A2.5 2.5 0 0 1 4 3.5h.5Zm2.5 2a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm5 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm5 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"/></svg>
         </span>
-        <span class="nav-label">Settings</span>
+        <span class="nav-label">DMs</span>
       </button>
     </div>
   `;

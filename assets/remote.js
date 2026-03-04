@@ -41,6 +41,15 @@ export async function fetchBalance(userId) {
   return data?.balance ?? 0;
 }
 
+export async function updateAccountBalance(userId, balance) {
+  const next = Number(balance) || 0;
+  const { error } = await supabase
+    .from("accounts")
+    .update({ balance: next })
+    .eq("user_id", userId);
+  if (error) throw error;
+}
+
 export async function fetchTransactions(userId, limit = 10) {
   const { data } = await supabase
     .from("transactions")

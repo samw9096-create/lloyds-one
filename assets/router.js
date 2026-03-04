@@ -16,8 +16,12 @@ export function currentPath() {
 
 export function go(path) {
   const target = path.startsWith("/") ? path : "/" + path;
+  const nextHash = "#" + target;
   // keep querystring if provided in target
-  window.location.hash = "#" + target;
-  // Some code listens to popstate; hashchange is the actual event here.
-  window.dispatchEvent(new Event("routechange"));
+  if (window.location.hash === nextHash) {
+    // allow explicit same-route refreshes without duplicating normal hash navigation
+    window.dispatchEvent(new Event("routechange"));
+    return;
+  }
+  window.location.hash = nextHash;
 }
