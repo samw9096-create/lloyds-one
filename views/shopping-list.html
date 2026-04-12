@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container shopping-page">
   <header class="top-bar">
     <div class="brand">
       <img class="brand-logo" src="./one-logo.png" alt="One" />
@@ -6,16 +6,52 @@
     <button class="avatar-btn" aria-label="Profile"></button>
   </header>
 
-  <h1 class="page-title">Shopping List</h1>
-
-  <div class="card" style="padding:12px;">
-    <div class="shopping-add">
-      <input id="shoppingInput" class="input" type="text" placeholder="Add an item" />
-      <button id="shoppingAddBtn" class="primary-btn" type="button">Add</button>
+  <div class="shopping-page-head">
+    <div>
+      <div class="shopping-eyebrow">Groceries and planning</div>
+      <h1 class="page-title shopping-page-title">Shopping List</h1>
+      <p class="shopping-page-subtitle">Search nearby deals, build the list, and keep the next shop tidy.</p>
     </div>
   </div>
 
-  <div class="section">
-    <div id="shoppingList" class="shopping-list"></div>
-  </div>
+  <section class="shopping-shell">
+    <div class="card shopping-search-card">
+      <div class="shopping-search-row">
+        <div class="deal-search shopping-search">
+          <span>🔍</span>
+          <input id="shoppingSearch" type="text" placeholder="Search groceries like milk, pasta or fruit" />
+        </div>
+        <button id="shoppingRefreshDeals" class="action-btn" type="button">Refresh</button>
+      </div>
+      <div class="shopping-quick-add">
+        <input id="shoppingInput" class="input" type="text" placeholder="Or add your own item" />
+        <button id="shoppingAddBtn" class="primary-btn" type="button">Add item</button>
+      </div>
+    </div>
+
+    <section id="shoppingDealsSection" class="section shopping-section-card">
+      <div class="home-section-head">
+        <h2 class="home-section-title">Nearby grocery deals</h2>
+        <div class="home-section-actions">
+          <span id="shoppingSearchCount" class="shopping-inline-meta">0 results</span>
+        </div>
+      </div>
+      <div id="shoppingSearchResults" class="shopping-search-results"></div>
+      <div id="shoppingSearchEmpty" class="deal-empty hidden">
+        <div class="deal-empty-title">No grocery matches</div>
+        <div class="muted">Try a broader search term like fruit, bread or lunch.</div>
+      </div>
+    </section>
+
+    <section id="shoppingListSection" class="section shopping-section-card">
+      <div class="home-section-head">
+        <h2 class="home-section-title">Your list</h2>
+        <div class="home-section-actions">
+          <span id="shoppingCount" class="shopping-inline-meta">0 items</span>
+          <button id="shoppingClearAll" class="text-link home-view-link" type="button">Clear list</button>
+        </div>
+      </div>
+      <div id="shoppingList" class="shopping-list"></div>
+    </section>
+  </section>
 </div>

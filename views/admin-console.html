@@ -1,0 +1,87 @@
+<div class="container admin-console-page">
+  <header class="top-bar">
+    <div class="brand">
+      <img class="brand-logo" src="./one-logo.png" alt="One" />
+    </div>
+    <button class="avatar-btn" aria-label="Profile"></button>
+  </header>
+
+  <h1 class="page-title">Admin Console</h1>
+
+  <section class="card admin-console-card">
+    <div class="admin-console-head">
+      <div>
+        <div class="shopping-eyebrow">Demo control</div>
+        <div class="admin-console-title">Remote demo state</div>
+      </div>
+      <button id="adminRefreshBtn" class="action-btn" type="button">Refresh</button>
+    </div>
+    <div class="admin-console-stats">
+      <div class="admin-stat">
+        <span>Current balance</span>
+        <strong id="adminBalanceValue">£0.00</strong>
+      </div>
+      <div class="admin-stat">
+        <span>Transactions</span>
+        <strong id="adminTransactionCount">0</strong>
+      </div>
+      <div class="admin-stat">
+        <span>Latest entry</span>
+        <strong id="adminLatestRef">No recent transactions</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="card admin-console-card">
+    <div class="admin-section-head">
+      <h2 class="home-section-title">Set balance</h2>
+      <div class="student-section-copy">Writes directly into the demo account state.</div>
+    </div>
+    <div class="admin-form-row">
+      <input id="adminBalanceInput" class="input" type="text" placeholder="£ 0.00" />
+      <button id="adminSetBalanceBtn" class="primary-btn" type="button">Update balance</button>
+    </div>
+  </section>
+
+  <section class="card admin-console-card">
+    <div class="admin-section-head">
+      <h2 class="home-section-title">Create transaction</h2>
+      <div class="student-section-copy">Adds a live transaction and updates the account balance.</div>
+    </div>
+    <div class="admin-stack">
+      <div class="admin-form-row admin-form-row-split">
+        <select id="adminTxDirection" class="select">
+          <option value="incoming">Incoming</option>
+          <option value="outgoing">Outgoing</option>
+        </select>
+        <input id="adminTxAmount" class="input" type="text" placeholder="£ 0.00" />
+      </div>
+      <input id="adminTxCounterparty" class="input" type="text" placeholder="Counterparty or merchant" />
+      <input id="adminTxReference" class="input" type="text" placeholder="Reference" />
+      <div class="admin-form-row">
+        <button id="adminCreateTxBtn" class="primary-btn" type="button">Add transaction</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card admin-console-card">
+    <div class="admin-section-head">
+      <h2 class="home-section-title">Quick actions</h2>
+      <div class="student-section-copy">Useful demo shortcuts for stakeholder sessions.</div>
+    </div>
+    <div class="admin-quick-grid">
+      <button class="action-btn admin-quick-btn" data-admin-quick="wages" type="button">Add wages</button>
+      <button class="action-btn admin-quick-btn" data-admin-quick="groceries" type="button">Add grocery spend</button>
+      <button class="action-btn admin-quick-btn" data-admin-quick="friend" type="button">Add friend transfer</button>
+      <button class="action-btn admin-quick-btn" data-admin-quick="reset" type="button">Reset demo data</button>
+    </div>
+  </section>
+
+  <section class="card admin-console-card">
+    <div class="admin-section-head">
+      <h2 class="home-section-title">Recent admin-visible activity</h2>
+      <div class="student-section-copy">Latest transactions written into the demo database layer.</div>
+    </div>
+    <div id="adminRecentList" class="admin-recent-list"></div>
+  </section>
+</div>

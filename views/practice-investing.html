@@ -1,0 +1,133 @@
+<div class="container practice-investing-page">
+  <header class="top-bar">
+    <div class="brand">
+      <img class="brand-logo" src="./one-logo.png" alt="One" />
+    </div>
+    <button class="avatar-btn" aria-label="Profile"></button>
+  </header>
+
+  <section class="invest-hero-card" id="investHeroCard">
+    <div class="invest-hero-top">
+      <div>
+        <div class="shopping-eyebrow">Practice mode</div>
+        <h1 class="page-title invest-page-title">Practice Investing</h1>
+      </div>
+      <div class="invest-hero-actions">
+        <button id="investLearnBtn" class="action-btn" type="button">Learn this screen</button>
+        <button id="investCloseBtn" class="invest-close-btn" type="button" aria-label="Close practice investing">×</button>
+      </div>
+    </div>
+    <p class="invest-hero-copy">All balances and trades here use fake money. This space is for learning how trading screens, positions and price moves work without real financial risk.</p>
+    <div class="invest-practice-badge">No real money is used in this mode</div>
+  </section>
+
+  <section class="invest-shell">
+    <div class="invest-panel invest-market-panel" id="investMarketPanel">
+      <div class="invest-market-top">
+        <div>
+          <div class="muted">Market picker</div>
+          <select id="investAssetSelect" class="select invest-asset-select"></select>
+        </div>
+        <button id="investResetBtn" class="action-btn" type="button">Reset practice wallet</button>
+      </div>
+
+      <div class="invest-market-meta">
+        <div>
+          <div id="investAssetLabel" class="invest-asset-label">Asset</div>
+          <div id="investAssetType" class="invest-asset-type">Type</div>
+        </div>
+        <div class="invest-price-block">
+          <div id="investPrice" class="invest-price">£0.00</div>
+          <div id="investChange" class="invest-change neutral">0.00%</div>
+        </div>
+      </div>
+
+      <div class="invest-trade-bar" id="investTradeBar">
+        <button id="investBuyBtn" class="invest-trade-btn buy active" type="button">Buy</button>
+        <button id="investSellBtn" class="invest-trade-btn sell" type="button">Sell</button>
+      </div>
+
+      <div class="invest-chart-card" id="investChartCard">
+        <div class="segmented invest-timeframe" id="investTimeframe">
+          <button class="active" data-range="1m" type="button">1 minute</button>
+          <button data-range="1h" type="button">1 hour</button>
+          <button data-range="1d" type="button">1 day</button>
+          <button data-range="1mo" type="button">1 month</button>
+        </div>
+        <svg id="investChart" class="invest-chart" viewBox="0 0 320 170" preserveAspectRatio="none" aria-label="Practice price chart">
+          <defs>
+            <linearGradient id="investAreaGradient" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="rgba(10,168,93,0.30)"></stop>
+              <stop offset="100%" stop-color="rgba(10,168,93,0.02)"></stop>
+            </linearGradient>
+          </defs>
+          <path id="investAreaPath" fill="url(#investAreaGradient)" d=""></path>
+          <path id="investLinePath" fill="none" stroke="#0aa85d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d=""></path>
+        </svg>
+        <div id="investPriceCaption" class="invest-chart-caption">Simulated live price over the last few moments.</div>
+      </div>
+
+      <div class="invest-meta-grid">
+        <div class="invest-stat-card">
+          <div class="invest-stat-label">Practice cash</div>
+          <div id="investCash" class="invest-stat-value">£10,000.00</div>
+        </div>
+        <div class="invest-stat-card">
+          <div class="invest-stat-label">Portfolio value</div>
+          <div id="investPortfolioValue" class="invest-stat-value">£10,000.00</div>
+        </div>
+        <div class="invest-stat-card">
+          <div class="invest-stat-label">Open position</div>
+          <div id="investPositionQty" class="invest-stat-value">0 units</div>
+        </div>
+        <div class="invest-stat-card">
+          <div class="invest-stat-label">P/L</div>
+          <div id="investPnL" class="invest-stat-value neutral">£0.00</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="invest-panel invest-order-panel" id="investOrderPanel">
+      <div class="invest-section-head">
+        <h2 class="home-section-title">Order ticket</h2>
+        <div class="shopping-inline-meta">Practice only</div>
+      </div>
+
+      <div class="form-field">
+        <label for="investQuantity">Units</label>
+        <input id="investQuantity" class="input" type="number" min="1" step="1" value="1" />
+      </div>
+
+      <div class="invest-quick-row">
+        <button class="action-btn invest-quick-btn" data-qty="1" type="button">+1</button>
+        <button class="action-btn invest-quick-btn" data-qty="5" type="button">+5</button>
+        <button class="action-btn invest-quick-btn" data-qty="10" type="button">+10</button>
+        <button id="investMaxBtn" class="action-btn" type="button">Max</button>
+      </div>
+
+      <div class="invest-order-summary">
+        <div class="invest-order-row">
+          <span>Estimated order value</span>
+          <strong id="investOrderValue">£0.00</strong>
+        </div>
+        <div class="invest-order-row">
+          <span>Available after trade</span>
+          <strong id="investCashAfter">£10,000.00</strong>
+        </div>
+      </div>
+
+      <div class="action-row invest-order-actions">
+        <button id="investTradeBtn" class="primary-btn" type="button">Place practice order</button>
+      </div>
+    </div>
+
+    <div class="invest-panel" id="investPortfolioPanel">
+      <div class="invest-section-head">
+        <h2 class="home-section-title">Your practice portfolio</h2>
+        <div class="shopping-inline-meta">Live from this fake wallet</div>
+      </div>
+      <div id="investPositions" class="invest-list"></div>
+    </div>
+
+  </section>
+</div>

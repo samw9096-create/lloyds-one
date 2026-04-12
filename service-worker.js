@@ -1,6 +1,6 @@
 // service-worker.js
 
-const CACHE_NAME = "lloyds-one-cache-v60";
+const CACHE_NAME = "lloyds-one-cache-v63";
 
 const APP_SHELL = [
   "./",
@@ -17,6 +17,7 @@ const APP_SHELL = [
   "./assets/supabase.js",
   "./assets/remote.js",
   "./assets/data/deal-dash.json",
+  "./assets/data/student-deals.json",
 
   "./views/login.html",
   "./views/splash.html",
@@ -24,6 +25,7 @@ const APP_SHELL = [
   "./views/home.html",
   "./views/account.html",
   "./views/friends.html",
+  "./views/friend-profile.html",
   "./views/dms.html",
   "./views/shopping-list.html",
   "./views/smart-money.html",
@@ -41,6 +43,7 @@ const APP_SHELL = [
   "./views/payments.html",
   "./views/bill-splitting.html",
   "./views/insights.html",
+  "./views/spending-wrapped.html",
   "./views/budget-pots.html",
   "./views/pot-create.html",
   "./views/pot-detail.html",
