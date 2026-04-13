@@ -814,6 +814,7 @@ function initAssistantWidget(profile, path = window.location.hash.replace(/^#/, 
     wrap.id = "assistantWidget";
     wrap.className = "assistant-widget";
     wrap.innerHTML = `
+      <button id="assistantBackdrop" class="assistant-backdrop" type="button" aria-label="Close assistant"></button>
       <div id="assistantPanel" class="assistant-panel">
         <div class="assistant-head">
           <div>
@@ -845,6 +846,7 @@ function initAssistantWidget(profile, path = window.location.hash.replace(/^#/, 
   const img = wrap.querySelector("#assistantTriggerImg");
   if (img) img.src = helper === "lucy" ? "./lucy.png" : "./louie.png";
 
+  const backdrop = wrap.querySelector("#assistantBackdrop");
   const panel = wrap.querySelector("#assistantPanel");
   const trigger = wrap.querySelector("#assistantTrigger");
   const prompts = wrap.querySelector("#assistantPrompts");
@@ -853,7 +855,7 @@ function initAssistantWidget(profile, path = window.location.hash.replace(/^#/, 
   const send = wrap.querySelector("#assistantSendBtn");
   const context = wrap.querySelector("#assistantContext");
   const clearBtn = wrap.querySelector("#assistantClearBtn");
-  if (!panel || !trigger || !prompts || !log || !input || !send || !context || !clearBtn) return;
+  if (!backdrop || !panel || !trigger || !prompts || !log || !input || !send || !context || !clearBtn) return;
 
   const pageMeta = getAssistantPageMeta(path);
   const headName = wrap.querySelector("#assistantHeadName");
@@ -1004,7 +1006,13 @@ function initAssistantWidget(profile, path = window.location.hash.replace(/^#/, 
     input.focus();
   };
 
-  trigger.onclick = () => panel.classList.toggle("open");
+  const setAssistantOpen = (open) => {
+    panel.classList.toggle("open", open);
+    backdrop.classList.toggle("open", open);
+  };
+
+  trigger.onclick = () => setAssistantOpen(!panel.classList.contains("open"));
+  backdrop.onclick = () => setAssistantOpen(false);
   send.onclick = handleSend;
   input.onkeydown = (e) => {
     if (e.key === "Enter") handleSend();

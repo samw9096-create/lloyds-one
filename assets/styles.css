@@ -4982,6 +4982,23 @@ html[data-tap="large"] .settings-item {
 }
 
 /* Floating mascot assistant */
+.assistant-backdrop {
+  position: fixed;
+  inset: 0;
+  border: 0;
+  background: rgba(7, 17, 12, 0.26);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.assistant-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .assistant-widget {
   position: fixed;
   right: 14px;
