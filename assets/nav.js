@@ -52,31 +52,41 @@ export function mountBottomNav() {
       <div class="nav-active-indicator" aria-hidden="true"></div>
       <button class="nav-btn" data-to="/home" aria-label="Home">
         <span class="nav-ico">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5v8a1.5 1.5 0 0 1-1.5 1.5h-4.5v-6h-4v6H5.5A1.5 1.5 0 0 1 4 18.5z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4.75 10.75 12 4.75l7.25 6v8a.75.75 0 0 1-.75.75h-4.25v-5.5h-4.5v5.5H5.5a.75.75 0 0 1-.75-.75z"/>
+          </svg>
         </span>
         <span class="nav-label">Home</span>
       </button>
       <button class="nav-btn" data-to="/payments" aria-label="Payments">
         <span class="nav-ico">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h13A2.5 2.5 0 0 1 21 7.5v9A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5v-9Zm2.5-.5a.5.5 0 0 0-.5.5V9h16V7.5a.5.5 0 0 0-.5-.5h-16Zm-.5 4v5.5a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5V11h-14Zm8 3h6v2h-6v-2Z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4.5 6.25h15a1.75 1.75 0 0 1 1.75 1.75v8A1.75 1.75 0 0 1 19.5 17.75h-15A1.75 1.75 0 0 1 2.75 16V8A1.75 1.75 0 0 1 4.5 6.25Zm-.25 3.5h16M14.25 14h4"/>
+          </svg>
         </span>
         <span class="nav-label">Payments</span>
       </button>
       <button class="nav-btn" data-to="/learn" aria-label="Money Minutes">
         <span class="nav-ico">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5 12 3l9 3.5-9 3.5-9-3.5Zm2 6.2v4.3l7 3 7-3v-4.3l-7 2.7-7-2.7Zm7-2.9 9-3.5 1 2.4-10 4.1-10-4.1 1-2.4 9 3.5Z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6.75 4.75h10.5A1.75 1.75 0 0 1 19 6.5v11a1.75 1.75 0 0 1-1.75 1.75H6.75A1.75 1.75 0 0 1 5 17.5v-11A1.75 1.75 0 0 1 6.75 4.75Zm2.25 3.5h6m-6 3h6m-6 3h4.5"/>
+          </svg>
         </span>
         <span class="nav-label">Money Minutes</span>
       </button>
       <button class="nav-btn" data-to="/deal-dash" aria-label="Deal Nest">
         <span class="nav-ico">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h6A2.5 2.5 0 0 1 15 5.5V8h2.5A2.5 2.5 0 0 1 20 10.5v8A2.5 2.5 0 0 1 17.5 21h-11A2.5 2.5 0 0 1 4 18.5v-13Zm2.5-.5a.5.5 0 0 0-.5.5v13a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5v-8a.5.5 0 0 0-.5-.5H13V5.5a.5.5 0 0 0-.5-.5h-6ZM10 12h4v2h-4v-2Zm-2 4h8v2H8v-2Z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6.5 5.25h11A1.25 1.25 0 0 1 18.75 6.5v11a1.25 1.25 0 0 1-1.25 1.25h-11A1.25 1.25 0 0 1 5.25 17.5v-11A1.25 1.25 0 0 1 6.5 5.25Zm0 0 3-2.5m6 2.5-3-2.5m-3.75 8h7.5m-6 3h4.5"/>
+          </svg>
         </span>
         <span class="nav-label">Deal Nest</span>
       </button>
       <button class="nav-btn" data-to="/dms" aria-label="DMs">
         <span class="nav-ico">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8A2.5 2.5 0 0 1 17.5 16H9l-5 5v-5.5A2.5 2.5 0 0 1 1.5 13V5.5A2.5 2.5 0 0 1 4 3.5h.5Zm2.5 2a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm5 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm5 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6.75 5.25h10.5A1.75 1.75 0 0 1 19 7v7.5a1.75 1.75 0 0 1-1.75 1.75h-6.5l-4.5 3v-3H6.75A1.75 1.75 0 0 1 5 14.5V7a1.75 1.75 0 0 1 1.75-1.75Zm2.25 5h.01m2.99 0H12m2.99 0H15"/>
+          </svg>
         </span>
         <span class="nav-label">DMs</span>
       </button>

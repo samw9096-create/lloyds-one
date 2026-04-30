@@ -35,7 +35,11 @@
       <div style="font-weight:700;margin-bottom:8px;">Attendees</div>
       <div id="billAttendees" class="attendee-list"></div>
 
-      <div class="total-row">Total &nbsp; <strong id="billTotal">£0</strong></div>
+      <div class="total-row">
+        <span>Total paid by <strong id="billPaidBy">Me</strong></span>
+        <strong id="billTotal">£0</strong>
+      </div>
+      <div id="billSplitDmHint" class="muted" style="font-size:12px;margin-top:8px;">Split requests can also be sent into your DMs.</div>
       <button id="splitBillBtn" class="primary-btn" type="button">Split Bill</button>
     </div>
   </div>

@@ -258,5 +258,83 @@
     "popularity": 75,
     "interestTags": ["travel", "days"],
     "accent": "#e11d48"
+  },
+  {
+    "id": "pret-campus-breakfast",
+    "brand": "Pret",
+    "title": "Breakfast and coffee before 10am",
+    "discount": "20% off",
+    "category": "Food",
+    "summary": "Campus breakfast deal on pastries, porridge, and hot drinks.",
+    "code": "MORN20",
+    "expires": "Weekdays",
+    "popularity": 82,
+    "interestTags": ["food", "coffee"],
+    "accent": "#7a4a1d"
+  },
+  {
+    "id": "unidays-tech-essentials",
+    "brand": "UNiDAYS Tech",
+    "title": "Student accessories bundle",
+    "discount": "Up to 25% off",
+    "category": "Tech",
+    "summary": "Cables, keyboards, phone cases, and laptop extras at student pricing.",
+    "code": "TECH25",
+    "expires": "Ends in 6 days",
+    "popularity": 80,
+    "interestTags": ["tech", "gaming"],
+    "accent": "#2563eb"
+  },
+  {
+    "id": "thetrainline-reading-week",
+    "brand": "Trainline",
+    "title": "Reading week get-home fares",
+    "discount": "15% off",
+    "category": "Travel",
+    "summary": "Extra discount on off-peak tickets for reading week travel.",
+    "code": "READ15",
+    "expires": "Ends Thursday",
+    "popularity": 77,
+    "interestTags": ["travel", "days"],
+    "accent": "#1d4ed8"
+  },
+  {
+    "id": "boots-student-beauty",
+    "brand": "Boots",
+    "title": "Student beauty and essentials",
+    "discount": "10% off",
+    "category": "Fashion",
+    "summary": "Useful campus essentials, skincare, and beauty basics in one offer.",
+    "code": "CAMPUSGLOW",
+    "expires": "Ends Sunday",
+    "popularity": 69,
+    "interestTags": ["clothing", "days"],
+    "accent": "#db2777"
+  },
+  {
+    "id": "o2-academy-student",
+    "brand": "O2 Academy",
+    "title": "Selected live gig discounts",
+    "discount": "Student entry from GBP 8",
+    "category": "Entertainment",
+    "summary": "Cheaper entry to selected live music nights and campus events.",
+    "code": "LIVE8",
+    "expires": "Ends this week",
+    "popularity": 74,
+    "interestTags": ["concerts", "music"],
+    "accent": "#6d28d9"
+  },
+  {
+    "id": "ikea-student-room-refresh",
+    "brand": "IKEA",
+    "title": "Student room refresh",
+    "discount": "15% off",
+    "category": "Fashion",
+    "summary": "Desk lamps, storage, bedding, and room decor for term-time moves.",
+    "code": "ROOM15",
+    "expires": "Ends this month",
+    "popularity": 73,
+    "interestTags": ["clothing", "days", "films"],
+    "accent": "#0f766e"
   }
 ]

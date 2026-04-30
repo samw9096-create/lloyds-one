@@ -34,20 +34,18 @@ Deno.serve(async (req) => {
   const action = String(body?.action || "");
 
   if (action === "reset") {
-    await admin.from("transactions").delete().or(`from_user.eq.${userId},to_user.eq.${userId}`);
-    await admin.from("profiles").delete().eq("user_id", userId);
-    await admin.from("user_passkeys").delete().eq("user_id", userId);
-    await admin.from("accounts").update({ balance: 0, updated_at: new Date().toISOString() }).eq("user_id", userId);
+    await admin.from("demo_transactions").delete().neq("id", "");
+    await admin.from("demo_profiles").delete().neq("user_id", "");
+    await admin.from("demo_accounts").delete().neq("user_id", "");
+    await admin.from("demo_users").delete().neq("id", "");
     return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 
   if (action === "delete") {
-    await admin.from("transactions").delete().or(`from_user.eq.${userId},to_user.eq.${userId}`);
-    await admin.from("profiles").delete().eq("user_id", userId);
-    await admin.from("user_passkeys").delete().eq("user_id", userId);
-    await admin.from("accounts").delete().eq("user_id", userId);
-    await admin.from("users").delete().eq("id", userId);
-    await admin.auth.admin.deleteUser(userId);
+    await admin.from("demo_transactions").delete().neq("id", "");
+    await admin.from("demo_profiles").delete().neq("user_id", "");
+    await admin.from("demo_accounts").delete().neq("user_id", "");
+    await admin.from("demo_users").delete().neq("id", "");
     return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 

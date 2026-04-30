@@ -99,19 +99,19 @@ const PRACTICE_ASSETS = [
 
 const POT_COLORS = ["#bfeeda", "#9fe2ef", "#d9b0e9", "#ffd7b5", "#c6f0ff", "#d6f7c2"];
 const GUIDED_TUTORIAL_STEPS = [
-  { path: "/home", selector: ".balance-card", title: "Home card", body: "Your main balance lives here. Tap the green card to flip it and view account details on the back." },
+  { path: "/home", selector: ".balance-card", title: "Home Card", body: "Your main balance lives here. Tap the green card to flip it and view account details on the back." },
   { path: "/payments", selector: ".payments-card", title: "Payments", body: "Send money from your account to friends. You cannot send to yourself, and balance checks stop overspending before anything moves." },
-  { path: "/budget-pots", selector: "#potsGrid", title: "Budget pots", body: "Create pots for goals and move money in or out. Pot transfers now feed back into your main balance and stay in sync." },
+  { path: "/budget-pots", selector: "#potsGrid", title: "Budgeting Pots", body: "Create pots for goals and move money in or out. Pot transfers now feed back into your main balance and stay in sync." },
   { path: "/dms", selector: ".dm-layout", title: "DMs", body: "Message friends, send money, or request it directly inside the chat. Incoming payments and unread replies appear in notifications and recent activity." },
-  { path: "/shopping-list", selector: ".shopping-search-card", title: "Shopping list + groceries", body: "Search nearby grocery deals, add items straight into your list, or type your own items manually. The list and the deal results work together here now." },
-  { path: "/deal-dash", selector: "#dealFeatured", title: "Student deals", body: "Deal Nest is now a student discounts hub. Featured offers are tailored using the interests chosen during onboarding." },
-  { path: "/practice-investing", selector: "#investMarketPanel", title: "Practice investing", body: "Use this screen to practice buying and selling assets with fake money only. It is designed to explain charts, order tickets and portfolio movements without any real trading risk." },
+  { path: "/shopping-list", selector: ".shopping-search-card", title: "Shopping List", body: "Search nearby grocery deals, compare staple prices, add items straight into your list, or type your own items manually." },
+  { path: "/deal-dash", selector: "#dealFeatured", title: "Deal Nest", body: "Deal Nest is your student discounts hub. Featured offers are tailored using the interests chosen during onboarding." },
+  { path: "/practice-investing", selector: "#investMarketPanel", title: "Practice Investing", body: "Use this screen to practice buying and selling assets with fake money only. It is designed to explain charts, order tickets and portfolio movements without any real trading risk." },
   { path: "/learn", selector: "#learnReelsFeed", title: "Money Minutes", body: "Money Minutes runs as a vertical reels feed. The first reels match your finance confidence level, and quiz reels are mixed into the scroll." },
-  { path: "/insights", selector: ".insights-analysis-head", title: "AI insights", body: "Insights combines transaction history with simulated analysis. Refresh the page to generate a new read on spending, trends, and category behaviour." },
+  { path: "/insights", selector: ".insights-analysis-head", title: "AI Insights", body: "Insights combines transaction history with simulated analysis. Refresh the page to generate a new read on spending, trends, and category behaviour." },
   { path: "/spending-wrapped", selector: "#wrappedStage", title: "Monthly wrapped", body: "This animated recap plays through your last 30 days of spending. Hold the screen to pause and replay it any time from Home or Insights." },
-  { path: "/friends", selector: "#friendList", title: "Friends and profiles", body: "Friend listings now show clearer identity details, unread markers, and profile verification so you can check the right person before paying them." },
-  { path: "/home", selector: ".assistant-trigger", title: "Assistant", body: "The mascot assistant is available from the floating button on every page. Open it for quick prompts about saving, spending, friends, and deals." },
-  { path: "/settings", selector: ".settings-section", title: "Settings and control", body: "Use Settings to manage themes, accessibility, privacy, onboarding replay, notifications, and account reset tools." }
+  { path: "/friends", selector: "#friendList", title: "Friends & Profiles", body: "Friend listings now show clearer identity details, unread markers, and profile verification so you can check the right person before paying them." },
+  { path: "/home", selector: ".assistant-trigger", title: "AI Chatbot", body: "The mascot assistant is available from the floating button on every page. Open it for quick prompts about saving, spending, friends, and deals." },
+  { path: "/settings", selector: ".settings-section", title: "Settings & Control", body: "Use Settings to manage themes, accessibility, privacy, onboarding replay, notifications, and account reset tools." }
 ];
 
 function isDemoSessionUnlocked() {
@@ -176,6 +176,21 @@ function formatMoney(value) {
   return `£${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+function formatDateTime(value) {
+  if (!value) return "Now";
+  try {
+    return new Date(value).toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  } catch {
+    return String(value);
+  }
+}
+
 async function getSimulatedLedger() {
   const profile = await getProfile();
   const fallback = { balanceDelta: 0, transactions: [] };
@@ -206,6 +221,7 @@ async function recordSimulatedTransfer({ receiverId, receiverName, amount, refer
   };
   await updateProfile({ simulatedLedger: next });
   await syncPendingBalanceDelta(null, next);
+  return tx;
 }
 
 async function recordSimulatedIncomingTransfer({ senderId, senderName, amount, reference }) {
@@ -226,6 +242,7 @@ async function recordSimulatedIncomingTransfer({ senderId, senderName, amount, r
   };
   await updateProfile({ simulatedLedger: next });
   await syncPendingBalanceDelta(null, next);
+  return tx;
 }
 
 async function applySimulatedBalanceAdjustment(deltaAmount) {
@@ -278,6 +295,73 @@ function showActionModal({ title = "Notice", message = "", actionText = "OK" } =
     btnEl.onclick = () => overlay.classList.remove("show");
   }
   overlay.classList.add("show");
+}
+
+function closeContentModal() {
+  const overlay = document.querySelector("#contentModalOverlay");
+  if (!overlay) return;
+  if (typeof overlay._cleanup === "function") {
+    overlay._cleanup();
+    overlay._cleanup = null;
+  }
+  overlay.classList.remove("show");
+}
+
+function showContentModal({ kicker = "One", title = "Details", subtitle = "", bodyHtml = "", actionText = "Close", onOpen = null } = {}) {
+  let overlay = document.querySelector("#contentModalOverlay");
+  if (!overlay) {
+    overlay = document.createElement("div");
+    overlay.id = "contentModalOverlay";
+    overlay.className = "content-modal-overlay";
+    overlay.innerHTML = `
+      <div class="content-modal-panel" role="dialog" aria-modal="true" aria-live="polite">
+        <div class="content-modal-head">
+          <div>
+            <div id="contentModalKicker" class="content-modal-kicker"></div>
+            <div id="contentModalTitle" class="content-modal-title"></div>
+            <div id="contentModalSubtitle" class="content-modal-subtitle"></div>
+          </div>
+          <button id="contentModalClose" class="content-modal-close" type="button" aria-label="Close">×</button>
+        </div>
+        <div id="contentModalBody" class="content-modal-body"></div>
+        <button id="contentModalAction" class="primary-btn" type="button">Close</button>
+      </div>
+    `;
+    overlay.addEventListener("click", (event) => {
+      if (event.target === overlay) closeContentModal();
+    });
+    document.body.appendChild(overlay);
+  }
+  const kickerEl = overlay.querySelector("#contentModalKicker");
+  const titleEl = overlay.querySelector("#contentModalTitle");
+  const subtitleEl = overlay.querySelector("#contentModalSubtitle");
+  const bodyEl = overlay.querySelector("#contentModalBody");
+  const closeBtn = overlay.querySelector("#contentModalClose");
+  const actionBtn = overlay.querySelector("#contentModalAction");
+  if (typeof overlay._cleanup === "function") {
+    overlay._cleanup();
+    overlay._cleanup = null;
+  }
+  if (kickerEl) kickerEl.textContent = kicker;
+  if (titleEl) titleEl.textContent = title;
+  if (subtitleEl) subtitleEl.textContent = subtitle;
+  if (bodyEl) bodyEl.innerHTML = bodyHtml;
+  if (closeBtn) closeBtn.onclick = closeContentModal;
+  if (actionBtn) {
+    actionBtn.textContent = actionText;
+    actionBtn.onclick = closeContentModal;
+  }
+  overlay.classList.add("show");
+  overlay._cleanup = null;
+  if (typeof onOpen === "function") onOpen(overlay);
+  return overlay;
+}
+
+async function findTransactionById(id) {
+  const remoteTx = await fetchTransactionById(id);
+  if (remoteTx) return remoteTx;
+  const ledger = await getSimulatedLedger();
+  return (ledger.transactions || []).find((tx) => tx.id === id) || null;
 }
 
 async function syncPendingBalanceDelta(profileOverride = null, ledgerOverride = null) {
@@ -781,7 +865,7 @@ function renderAssistantResponseCard(payload) {
   const actions = Array.isArray(payload?.actions) ? payload.actions.filter(Boolean) : [];
   return `
     <div class="assistant-card">
-      <div class="assistant-card-kicker">Agent analysis</div>
+      <div class="assistant-card-kicker">Agentic Analysis</div>
       <div class="assistant-card-title">${escapeAssistantHtml(payload?.title || "One Agent")}</div>
       <div class="assistant-card-body">${escapeAssistantHtml(payload?.body || "")}</div>
       ${bullets.length ? `<div class="assistant-bullets">${bullets.map((item) => `<div class="assistant-bullet"><span></span><div>${escapeAssistantHtml(item)}</div></div>`).join("")}</div>` : ""}
@@ -1044,7 +1128,7 @@ function maybeRenderGuidedTutorial(path) {
     <div class="guided-tutorial-card">
       <div class="guided-tutorial-top">
         <strong>${config.title}</strong>
-        <span class="muted">${step + 1}/${GUIDED_TUTORIAL_STEPS.length}</span>
+        <span class="guided-tutorial-label">Live Screen</span>
       </div>
       <p class="muted" style="margin:0;">${config.body}</p>
       <div class="guided-tutorial-actions">
@@ -2123,6 +2207,18 @@ function initHome() {
   const cardName = document.querySelector("#cardAccountName");
   const cardNameTop = document.querySelector("#cardAccountNameTop");
 
+  const syncBalanceCardHeight = () => {
+    if (!balanceCard) return;
+    const faces = Array.from(balanceCard.querySelectorAll(".flip-card-face"));
+    const maxHeight = faces.reduce((max, face) => Math.max(max, face.scrollHeight || 0), 0);
+    if (maxHeight > 0) {
+      const targetHeight = Math.min(Math.max(188, maxHeight), 198);
+      balanceCard.style.minHeight = `${targetHeight}px`;
+      const inner = balanceCard.querySelector(".flip-card-inner");
+      if (inner) inner.style.minHeight = `${targetHeight}px`;
+    }
+  };
+
   const setCardName = (fullName = "") => {
     const firstName = String(fullName || "").trim().split(" ")[0] || "Account";
     if (cardName) cardName.textContent = firstName;
@@ -2185,6 +2281,10 @@ function initHome() {
         toggleFlip();
       }
     };
+    if (!balanceCard.dataset.heightBound) {
+      window.addEventListener("resize", syncBalanceCardHeight);
+      balanceCard.dataset.heightBound = "1";
+    }
   }
 
   getProfile().then((profile) => {
@@ -2193,6 +2293,7 @@ function initHome() {
     const nameEl = document.querySelector("#homeName");
     if (nameEl) nameEl.textContent = profile.name || "there";
     setCardName(profile.name || "");
+    requestAnimationFrame(syncBalanceCardHeight);
   });
 
   initHomeInsightsCard();
@@ -2325,9 +2426,10 @@ function initHome() {
       const localBalance = Math.max(0, 250 + Number(ledger.balanceDelta || 0));
       if (balanceEl) balanceEl.textContent = formatMoney(localBalance);
       if (balanceOverlayEl) balanceOverlayEl.textContent = formatMoney(localBalance);
-      if (homePotsSummaryBalance) homePotsSummaryBalance.textContent = formatMoney(localBalance);
-      renderTransactions("all");
-      return;
+    if (homePotsSummaryBalance) homePotsSummaryBalance.textContent = formatMoney(localBalance);
+    renderTransactions("all");
+    requestAnimationFrame(syncBalanceCardHeight);
+    return;
     }
     const remote = await fetchUserById(user.id);
     if (remote?.name && remote.name !== profile.name) {
@@ -2371,6 +2473,7 @@ function initHome() {
     allTransactions = [...localMapped, ...remoteMapped]
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     renderTransactions("all");
+    requestAnimationFrame(syncBalanceCardHeight);
 
     const newestIncoming = remoteMapped.find((tx) => tx._direction === "income");
     if (newestIncoming?.created_at) {
@@ -2702,12 +2805,25 @@ function initShoppingList() {
   const emptyEl = document.querySelector("#shoppingSearchEmpty");
   const countEl = document.querySelector("#shoppingCount");
   const resultCountEl = document.querySelector("#shoppingSearchCount");
+  const comparisonSummary = document.querySelector("#shoppingComparisonSummary");
   const refreshBtn = document.querySelector("#shoppingRefreshDeals");
   const clearBtn = document.querySelector("#shoppingClearAll");
   let groceryItems = [];
 
   const fmt = (value) => `GBP ${Number(value).toFixed(2)}`;
   const normalise = (value) => String(value || "").trim().toLowerCase();
+
+  const buildComparisonMap = (items) => {
+    const map = new Map();
+    items.forEach((item) => {
+      const key = normalise(item.name);
+      if (!key) return;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(item);
+    });
+    map.forEach((entries) => entries.sort((a, b) => Number(a.price || 0) - Number(b.price || 0)));
+    return map;
+  };
 
   const syncSectionOrder = () => {
     if (!shell || !dealsSection || !listSection) return;
@@ -2813,6 +2929,32 @@ function initShoppingList() {
 
     if (resultCountEl) resultCountEl.textContent = `${filtered.length} results`;
     resultsEl.innerHTML = "";
+    const comparisonMap = buildComparisonMap(groceryItems);
+    const comparisonCandidates = [...comparisonMap.values()].filter((entries) => entries.length > 1);
+    if (comparisonSummary) {
+      if (comparisonCandidates.length && filtered.length) {
+        const bestPick = comparisonCandidates
+          .map((entries) => {
+            const best = entries[0];
+            const second = entries[1];
+            return {
+              name: best.name,
+              store: best.store,
+              price: Number(best.price || 0),
+              saving: Math.max(0, Number(second?.price || 0) - Number(best.price || 0))
+            };
+          })
+          .sort((a, b) => b.saving - a.saving)[0];
+        comparisonSummary.classList.remove("hidden");
+        comparisonSummary.innerHTML = `
+          <strong>Quick compare:</strong>
+          <span>${escapeAssistantHtml(bestPick.name)} is cheapest at ${escapeAssistantHtml(bestPick.store)} for ${fmt(bestPick.price)}${bestPick.saving ? `, saving ${fmt(bestPick.saving)} versus the next option.` : "."}</span>
+        `;
+      } else {
+        comparisonSummary.classList.add("hidden");
+        comparisonSummary.innerHTML = "";
+      }
+    }
     if (!filtered.length) {
       if (emptyEl) emptyEl.classList.remove("hidden");
       return;
@@ -2823,6 +2965,14 @@ function initShoppingList() {
     const list = Array.isArray(profile.shoppingList) ? profile.shoppingList : [];
     filtered.slice(0, 10).forEach((item) => {
       const added = list.some((entry) => normalise(entry) === normalise(item.name));
+      const options = comparisonMap.get(normalise(item.name)) || [item];
+      const cheapest = options[0] || item;
+      const diff = Number(item.price || 0) - Number(cheapest.price || 0);
+      const compareText = options.length > 1
+        ? diff <= 0
+          ? `Best price nearby`
+          : `${fmt(diff)} more than ${cheapest.store}`
+        : "No direct comparison nearby";
       const card = document.createElement("div");
       card.className = "shopping-search-card-item";
       card.innerHTML = `
@@ -2830,6 +2980,7 @@ function initShoppingList() {
           <div class="shopping-result-brand">${item.store}</div>
           <div class="shopping-result-title">${item.name}</div>
           <div class="shopping-result-meta">${fmt(item.price)} • ${item.unit || "each"} • ${Number(item.distanceMiles || 0).toFixed(1)} mi</div>
+          <div class="shopping-result-compare ${options.length > 1 ? "" : "neutral"}">${compareText}</div>
         </div>
         <button class="primary-btn shopping-add-result" type="button" ${added ? "disabled" : ""}>${added ? "Added" : "Add"}</button>
       `;
@@ -2876,6 +3027,8 @@ function initPayments() {
   const sendFromSelect = document.querySelector("#sendFromAccount");
   const amountInput = document.querySelector("#sendAmount");
   const referenceInput = document.querySelector("#sendReference");
+  const scanQrBtn = document.querySelector("#scanQrBtn");
+  const showMyQrBtn = document.querySelector("#showMyQrBtn");
   const quickAmountBtns = document.querySelectorAll(".amount-quick-picks button");
   let recipients = [];
   const hash = window.location.hash || "";
@@ -2927,6 +3080,56 @@ function initPayments() {
     }
   };
 
+  const openQrModal = (mode = "scan") => {
+    if (mode === "show") {
+      showContentModal({
+        kicker: "QR Payments",
+        title: "Your demo QR code",
+        subtitle: "Friends could scan this to pay or request money in a real flow.",
+        bodyHtml: `
+          <div class="content-modal-section">
+            <div class="fake-qr-code" aria-hidden="true"></div>
+            <div class="content-modal-section-copy" style="margin-top:12px;">Account: Main current account<br/>Name: Demo One user</div>
+          </div>
+        `
+      });
+      return;
+    }
+
+    showContentModal({
+      kicker: "QR Payments",
+      title: "Scan a QR code",
+      subtitle: "Camera preview only in this demo. No real QR code is processed.",
+      bodyHtml: `
+        <div class="qr-camera-shell">
+          <video id="qrDemoVideo" autoplay muted playsinline></video>
+          <div id="qrDemoFallback" class="qr-camera-fallback hidden">Camera preview</div>
+        </div>
+        <div class="qr-camera-caption">Point the camera at a QR code to simulate send or receive money.</div>
+      `,
+      actionText: "Close",
+      onOpen: (overlay) => {
+        const video = overlay.querySelector("#qrDemoVideo");
+        const fallback = overlay.querySelector("#qrDemoFallback");
+        const streamPromise = navigator.mediaDevices?.getUserMedia
+          ? navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+          : Promise.reject(new Error("Camera unavailable"));
+        streamPromise
+          .then((stream) => {
+            overlay._cleanup = () => {
+              stream.getTracks().forEach((track) => track.stop());
+              if (video) video.srcObject = null;
+            };
+            if (video) video.srcObject = stream;
+          })
+          .catch(() => {
+            if (video) video.classList.add("hidden");
+            if (fallback) fallback.classList.remove("hidden");
+          });
+      }
+    });
+  };
+
   if (sendBtn) {
     sendBtn.onclick = async () => {
       const user = await getSupabaseUser();
@@ -2963,9 +3166,10 @@ function initPayments() {
         });
         return;
       }
+      let createdTx = null;
       if (isFakeRecipient) {
         const recipientName = selectedRecipient?.name || selectedOption?.textContent || "friend";
-        await recordSimulatedTransfer({
+        createdTx = await recordSimulatedTransfer({
           receiverId,
           receiverName: recipientName,
           amount,
@@ -2973,19 +3177,19 @@ function initPayments() {
         });
         showTopNotification.withAction(
           `You paid ${recipientName} ${formatMoney(amount)}.`,
-          "Open",
-          () => go("/home")
+          "Receipt",
+          () => go(`/transaction?id=${encodeURIComponent(createdTx?.id || "")}`)
         );
         showConfirmation("Money sent");
         return;
       }
       try {
-        await transferFunds({ senderId: user.id, receiverId, amount, reference });
+        createdTx = await transferFunds({ senderId: user.id, receiverId, amount, reference });
         const recipientName = selectedRecipient?.name || selectedOption?.textContent || "friend";
         showTopNotification.withAction(
           `You paid ${recipientName} ${formatMoney(amount)}.`,
-          "Open",
-          () => go("/home")
+          "Receipt",
+          () => go(`/transaction?id=${encodeURIComponent(createdTx?.id || "")}`)
         );
         showConfirmation("Money sent");
       } catch (e) {
@@ -3003,6 +3207,9 @@ function initPayments() {
     });
   }
 
+  if (scanQrBtn) scanQrBtn.onclick = () => openQrModal("scan");
+  if (showMyQrBtn) showMyQrBtn.onclick = () => openQrModal("show");
+
   loadRecipients();
 }
 
@@ -3018,9 +3225,10 @@ function initBillSplitting() {
   const billCard = document.querySelector("#billCard");
   const billAttendees = document.querySelector("#billAttendees");
   const billTotal = document.querySelector("#billTotal");
+  const billPaidBy = document.querySelector("#billPaidBy");
+  const billSplitDmHint = document.querySelector("#billSplitDmHint");
   if (sendLink) sendLink.onclick = () => go("/payments");
   if (insightsLink) insightsLink.onclick = () => go("/insights");
-  if (splitBtn) splitBtn.onclick = () => showConfirmation("Bill split");
 
   const transactions = [
     { id: "t1", merchant: "McDonald's", amount: 14.5, time: "10:34 AM", date: "14/11/2025", icon: "M" },
@@ -3078,12 +3286,15 @@ function initBillSplitting() {
 
   const renderSplit = (friends) => {
     if (!billCard || !billAttendees || !billTotal || !selectedTx) return;
+    if (billPaidBy) billPaidBy.textContent = "Me";
+    if (billSplitDmHint) billSplitDmHint.textContent = `If you split this now, each selected friend gets a DM request for their share.`;
     billCard.innerHTML = `
       <div style="display:flex;align-items:center;gap:10px;">
         <div class="brand-box" style="background:#fff3e1;border:none;">${selectedTx.icon}</div>
         <div>
-          <div><strong>£${selectedTx.amount.toFixed(2)}</strong> <span style="margin-left:6px;">Spent at ${selectedTx.merchant}</span></div>
-          <div style="font-size:12px;color:#436254;">${selectedFriends.size + 1} Attendees • ${selectedTx.time} • ${selectedTx.date}</div>
+          <div><strong>£${selectedTx.amount.toFixed(2)}</strong> <span style="margin-left:6px;">Paid by me at ${selectedTx.merchant}</span></div>
+          <div style="font-size:12px;color:#436254;">${selectedFriends.size + 1} people • ${selectedTx.time} • ${selectedTx.date}</div>
+          <div class="bill-paid-pill" style="margin-top:8px;">Paid by Me</div>
         </div>
       </div>
     `;
@@ -3097,9 +3308,9 @@ function initBillSplitting() {
     youRow.innerHTML = `
       <div class="attendee-left">
         <div class="avatar-circle">Y</div>
-        You
+        Me
       </div>
-      <div>Owe <strong>£${per.toFixed(2)}</strong></div>
+      <div>Paid <strong>£${selectedTx.amount.toFixed(2)}</strong></div>
     `;
     billAttendees.appendChild(youRow);
 
@@ -3115,6 +3326,47 @@ function initBillSplitting() {
       `;
       billAttendees.appendChild(row);
     });
+  };
+
+  const pushSplitIntoDMs = async (friends) => {
+    if (!selectedTx || !selectedFriends.size) return;
+    const profile = await getProfile();
+    let threads = {};
+    let unread = {};
+    try {
+      threads = JSON.parse(localStorage.getItem(STORAGE_KEYS.dmThreads) || "null") || profile.dmThreads || {};
+    } catch {
+      threads = profile.dmThreads || {};
+    }
+    try {
+      unread = JSON.parse(localStorage.getItem(STORAGE_KEYS.dmUnread) || "null") || profile.dmUnread || {};
+    } catch {
+      unread = profile.dmUnread || {};
+    }
+    const totalPeople = selectedFriends.size + 1;
+    const per = totalPeople ? Number(selectedTx.amount || 0) / totalPeople : 0;
+    const selected = friends.filter((f) => selectedFriends.has(f.id));
+    selected.forEach((friend) => {
+      if (!threads[friend.id]) threads[friend.id] = [];
+      threads[friend.id].push({
+        id: `dm_split_${Date.now()}_${friend.id}`,
+        createdAt: new Date().toISOString(),
+        type: "request",
+        direction: "out",
+        amount: Number(per.toFixed(2)),
+        text: `Split bill for ${selectedTx.merchant}. I paid, so you owe ${formatMoney(per)}.`
+      });
+    });
+    localStorage.setItem(STORAGE_KEYS.dmThreads, JSON.stringify(threads));
+    localStorage.setItem(STORAGE_KEYS.dmUnread, JSON.stringify(unread));
+    await updateProfile({ dmThreads: threads, dmUnread: unread });
+    const firstFriend = selected[0];
+    showTopNotification.withAction(
+      `Split requests sent to ${selected.length} friend${selected.length === 1 ? "" : "s"} in DMs.`,
+      "Open",
+      () => go(`/dms?friend=${encodeURIComponent(firstFriend?.id || "")}`)
+    );
+    showTopNotification(`Split requests sent to ${selected.length} friend${selected.length === 1 ? "" : "s"} in DMs.`);
   };
 
   const hash = window.location.hash || "";
@@ -3140,6 +3392,19 @@ function initBillSplitting() {
       };
     }
 
+    if (splitBtn) {
+      splitBtn.onclick = async () => {
+        if (!selectedTx || selectedFriends.size === 0) {
+          showActionModal({
+            title: "Select people first",
+            message: "Choose a transaction and at least one friend to split the bill."
+          });
+          return;
+        }
+        await pushSplitIntoDMs(friends);
+      };
+    }
+
     if (preselectId && selectedTx && billSelect && billSplitView) {
       billSelect.classList.add("hidden");
       billSplitView.classList.remove("hidden");
@@ -3158,6 +3423,7 @@ function initTransaction() {
   const category = document.querySelector("#txCategory");
   const card = document.querySelector("#txCard");
   const splitBtn = document.querySelector("#txSplitBtn");
+  const receiptBtn = document.querySelector("#txReceiptBtn");
 
   const hash = window.location.hash || "";
   const query = hash.includes("?") ? hash.split("?")[1] : "";
@@ -3173,12 +3439,37 @@ function initTransaction() {
     category: "Transfer"
   };
 
+  const openReceipt = async (tx, userId = null) => {
+    const isIncome = tx && (tx.to_user === userId || tx.to_user === "local_user");
+    const otherPartyId = isIncome ? tx?.from_user : tx?.to_user;
+    const otherPartyName = tx?.counterpartyName
+      || (await fetchUserById(otherPartyId))?.name
+      || (isIncome ? "Incoming payment" : "Outgoing payment");
+    showContentModal({
+      kicker: "Payment Receipt",
+      title: tx?.reference || (isIncome ? "Incoming transfer" : "Transfer sent"),
+      subtitle: `Transaction reference ${tx?.id || "demo-transfer"}`,
+      bodyHtml: `
+        <div class="receipt-summary">
+          <div class="content-modal-kicker">${isIncome ? "Received" : "Sent"}</div>
+          <div class="receipt-summary-amount">${formatMoney(tx?.amount || fallback.amount)}</div>
+        </div>
+        <div class="receipt-grid">
+          <div class="receipt-row"><span>${isIncome ? "From" : "To"}</span><strong>${escapeAssistantHtml(otherPartyName)}</strong></div>
+          <div class="receipt-row"><span>Date</span><strong>${escapeAssistantHtml(formatDateTime(tx?.created_at))}</strong></div>
+          <div class="receipt-row"><span>Status</span><strong>Completed</strong></div>
+          <div class="receipt-row"><span>Reference</span><strong>${escapeAssistantHtml(tx?.reference || "Transfer")}</strong></div>
+        </div>
+      `
+    });
+  };
+
   const renderTx = (tx, userId = null) => {
-    const isIncome = userId && tx.to_user === userId;
+    const isIncome = tx && (tx.to_user === userId || tx.to_user === "local_user");
     if (icon) icon.textContent = isIncome ? "⬇️" : "⬆️";
     if (merchant) merchant.textContent = tx.reference || (isIncome ? "Incoming transfer" : "Sent transfer");
     if (meta) {
-      const date = tx.created_at ? new Date(tx.created_at).toLocaleString("en-GB") : `${fallback.date} • ${fallback.time}`;
+      const date = tx.created_at ? formatDateTime(tx.created_at) : `${fallback.date} • ${fallback.time}`;
       meta.textContent = date;
     }
     if (amount) amount.textContent = `£${Number(tx.amount || fallback.amount).toFixed(2)}`;
@@ -3186,15 +3477,18 @@ function initTransaction() {
     if (status) status.textContent = "Completed";
     if (category) category.textContent = "Transfer";
     if (card) card.textContent = "Lloyds Debit";
+    if (receiptBtn) {
+      receiptBtn.onclick = () => openReceipt(tx, userId);
+    }
   };
 
-  fetchTransactionById(id).then(async (remoteTx) => {
-    if (remoteTx) {
+  findTransactionById(id).then(async (tx) => {
+    if (tx) {
       const user = await getSupabaseUser();
-      renderTx(remoteTx, user?.id || null);
-    } else {
-      renderTx(fallback);
+      renderTx(tx, user?.id || null);
+      return;
     }
+    renderTx(fallback);
   });
 
   if (splitBtn) splitBtn.onclick = () => go(`/bill-splitting?tx=${encodeURIComponent(id)}`);
@@ -3281,6 +3575,7 @@ function initAddToPot() {
   const confirm = document.querySelector("#addPotConfirm");
   const select = document.querySelector("#addPotSelect");
   const amountInput = document.querySelector("#addPotAmount");
+  const note = document.querySelector("#addPotLimitNote");
   const hash = window.location.hash || "";
   const query = hash.includes("?") ? hash.split("?")[1] : "";
   const params = new URLSearchParams(query);
@@ -3304,6 +3599,24 @@ function initAddToPot() {
       select.appendChild(opt);
     });
     if (preselectId) select.value = preselectId;
+    updateLimitNote();
+  };
+
+  const updateLimitNote = async () => {
+    if (!note || !select) return;
+    const pots = await getBudgetPots();
+    const pot = pots.find((p) => p.id === select.value);
+    if (!pot) {
+      note.textContent = "";
+      return;
+    }
+    const goal = Number(pot.goal) || 0;
+    const balance = Number(pot.balance) || 0;
+    if (goal > 0) {
+      note.textContent = `${pot.name} can take up to ${formatMoney(Math.max(0, goal - balance))} more before it reaches its goal.`;
+      return;
+    }
+    note.textContent = `${pot.name} has no goal cap set yet.`;
   };
 
   if (confirm) {
@@ -3324,16 +3637,25 @@ function initAddToPot() {
       const pot = pots.find((p) => p.id === potId);
       if (!pot) return alert("Pot not found.");
       const prevBalance = Number(pot.balance) || 0;
+      const goal = Number(pot.goal) || 0;
+      if (goal > 0 && prevBalance + amount > goal) {
+        showActionModal({
+          title: "Goal limit reached",
+          message: `${pot.name} has a target of ${formatMoney(goal)}. You can only add up to ${formatMoney(Math.max(0, goal - prevBalance))} right now.`
+        });
+        return;
+      }
       pot.balance = Number(pot.balance) + amount;
       await setBudgetPots(pots);
       await applySimulatedBalanceAdjustment(-amount);
-      const goal = Number(pot.goal) || 0;
       if (goal > 0 && prevBalance < goal && Number(pot.balance) >= goal) {
         showTopNotification(`${pot.emoji || "Pot"} ${pot.name} goal completed`);
       }
       showConfirmation("Money added");
     };
   }
+
+  if (select) select.onchange = () => { updateLimitNote(); };
 
   load();
 }
@@ -4387,7 +4709,7 @@ function initDealNest() {
         </div>
         <div class="deal-meta">
           <span>${item.category}</span>
-          <span>${item.code}</span>
+          <span class="deal-code-chip">Code: ${item.code}</span>
         </div>
         <div class="student-deal-summary">${item.summary}</div>
         <div class="student-deal-footer">
@@ -5028,13 +5350,20 @@ async function initFriendProfile() {
 }
 
 function initMoneyMinutes() {
+  const quizBtn = document.querySelector("#moneyMinutesQuizBtn");
   const reels = document.querySelectorAll(".reel-card");
+  if (quizBtn) quizBtn.onclick = () => go("/quiz-questions?mode=all&module=all");
   reels.forEach((reel) => {
     const video = reel.querySelector("video");
     const btn = reel.querySelector(".reel-sound");
     if (!video || !btn) return;
 
     const updateIcon = () => {
+      const icon = btn.querySelector(".reel-action-icon");
+      if (icon) {
+        icon.textContent = video.muted ? "🔇" : "🔊";
+        return;
+      }
       btn.textContent = video.muted ? "🔇" : "🔊";
     };
 
@@ -5169,6 +5498,17 @@ const QUIZ_BANK = {
   }
 };
 
+function buildAllQuizQuestions() {
+  return Object.entries(QUIZ_BANK).flatMap(([quizId, quiz]) =>
+    (quiz.questions || []).map((question, questionIndex) => ({
+      ...question,
+      quizId,
+      quizTitle: quiz.title,
+      questionIndex
+    }))
+  );
+}
+
 function buildMoneyMinutesExplainPayload(lesson) {
   const title = lesson?.title || "This Money Minutes reel";
   const bullets = [
@@ -5190,6 +5530,8 @@ function buildMoneyMinutesExplainPayload(lesson) {
 function initLearn() {
   const feed = document.querySelector("#learnReelsFeed");
   if (!feed) return;
+  const quizBtn = document.querySelector("#moneyMinutesQuizBtn");
+  if (quizBtn) quizBtn.onclick = () => go("/quiz-questions?mode=all&module=all");
 
   getProfile().then((profile) => {
     const moduleSet = modulesForCompetency(profile.financeCompetency);
@@ -5336,7 +5678,7 @@ function initLearn() {
               ${item.hasVideo ? `
                 <div class="reel-actions">
                   <button class="reel-action reel-explain" type="button" aria-label="Explain this reel" data-explain-title="${escapeAssistantHtml(item.explainPayload.title)}" data-explain-body="${escapeAssistantHtml(item.explainPayload.body)}" data-explain-bullets="${escapeAssistantHtml(JSON.stringify(item.explainPayload.bullets || []))}"><img src="${getAssistantTriggerImageSrc()}" alt="" /><span>Explain</span></button>
-                  <button class="reel-action reel-sound" type="button" aria-label="Toggle sound">🔇</button>
+                  <button class="reel-action reel-sound" type="button" aria-label="Toggle sound"><span class="reel-action-icon">🔇</span><span class="reel-action-text">Sound</span></button>
                 </div>
               ` : ""}
             </div>
@@ -5502,6 +5844,7 @@ function initQuizVideo() {
 
 function initQuizQuestions() {
   const qEl = document.querySelector("#quizQuestion");
+  const qMetaEl = document.querySelector("#quizQuestionMeta");
   const choicesEl = document.querySelector("#quizChoices");
   const progressEl = document.querySelector("#quizProgress");
   const scoreEl = document.querySelector("#quizScore");
@@ -5514,23 +5857,29 @@ function initQuizQuestions() {
   const params = new URLSearchParams(query);
   const id = params.get("id") || "q1";
   const mod = params.get("module") || LEARN_MODULES[0].id;
+  const mode = params.get("mode") || "";
+  const isAllMode = mode === "all";
   const quiz = QUIZ_BANK[id];
-  if (!quiz) return;
+  const allQuestions = buildAllQuizQuestions();
+  if (!isAllMode && !quiz) return;
 
   let index = 0;
   let correct = 0;
   let selected = null;
+  const questionSet = isAllMode ? allQuestions : quiz.questions;
 
   const render = () => {
     if (errEl) errEl.textContent = "";
-    const total = quiz.questions.length;
-    if (progressEl) progressEl.textContent = `Question ${index + 1} of ${total}`;
+    const total = questionSet.length;
+    if (progressEl) progressEl.textContent = isAllMode ? `Money Minutes challenge • Question ${index + 1} of ${total}` : `Question ${index + 1} of ${total}`;
     if (scoreEl) scoreEl.textContent = `${correct} correct`;
-    if (qEl) qEl.textContent = quiz.questions[index].q;
+    const activeQuestion = questionSet[index];
+    if (qMetaEl) qMetaEl.textContent = isAllMode ? activeQuestion?.quizTitle || "Money Minutes" : quiz.title;
+    if (qEl) qEl.textContent = activeQuestion.q;
 
     if (choicesEl) {
       choicesEl.innerHTML = "";
-      quiz.questions[index].choices.forEach((c, i) => {
+      activeQuestion.choices.forEach((c, i) => {
         const btn = document.createElement("button");
         btn.className = "quiz-choice";
         btn.textContent = c;
@@ -5546,7 +5895,7 @@ function initQuizQuestions() {
     if (nextBtn) nextBtn.textContent = index === total - 1 ? "Finish" : "Next";
   };
 
-  if (backBtn) backBtn.onclick = () => go(`/quizzes?module=${encodeURIComponent(mod)}`);
+  if (backBtn) backBtn.onclick = () => go(isAllMode ? "/learn" : `/quizzes?module=${encodeURIComponent(mod)}`);
 
   if (nextBtn) {
     nextBtn.onclick = () => {
@@ -5554,15 +5903,15 @@ function initQuizQuestions() {
         if (errEl) errEl.textContent = "Select an answer to continue.";
         return;
       }
-      if (selected === quiz.questions[index].correct) correct += 1;
+      if (selected === questionSet[index].correct) correct += 1;
       selected = null;
       index += 1;
-      if (index < quiz.questions.length) {
+      if (index < questionSet.length) {
         render();
         return;
       }
-      sessionStorage.setItem("quizResult", JSON.stringify({ id, mod, correct, total: quiz.questions.length }));
-      go(`/quiz-summary?id=${encodeURIComponent(id)}&module=${encodeURIComponent(mod)}`);
+      sessionStorage.setItem("quizResult", JSON.stringify({ id: isAllMode ? "all" : id, mod: isAllMode ? "all" : mod, correct, total: questionSet.length, mode }));
+      go(`/quiz-summary?id=${encodeURIComponent(isAllMode ? "all" : id)}&module=${encodeURIComponent(isAllMode ? "all" : mod)}${isAllMode ? "&mode=all" : ""}`);
     };
   }
 
@@ -5580,9 +5929,10 @@ function initQuizSummary() {
   const correct = data.correct || 0;
   const total = data.total || 0;
   const pct = total ? Math.round((correct / total) * 100) : 0;
+  const isAllMode = data.mode === "all" || data.id === "all";
 
-  if (title) title.textContent = pct === 100 ? "Perfect score!" : "Quiz complete";
-  if (text) text.textContent = `You got ${correct} of ${total} correct.`;
+  if (title) title.textContent = pct === 100 ? "Perfect score!" : isAllMode ? "Challenge complete" : "Quiz complete";
+  if (text) text.textContent = isAllMode ? `You got ${correct} of ${total} correct across the full Money Minutes challenge.` : `You got ${correct} of ${total} correct.`;
   if (bar) bar.style.width = `${pct}%`;
 
   if (badge) {
@@ -5591,6 +5941,7 @@ function initQuizSummary() {
   }
 
   getProfile().then(async (profile) => {
+    if (isAllMode) return;
     const completed = Array.isArray(profile.quizCompleted) ? profile.quizCompleted : [];
     const already = data.id && completed.includes(data.id);
     if (data.id && !already) completed.push(data.id);
@@ -5600,7 +5951,7 @@ function initQuizSummary() {
   });
 
   if (doneBtn) {
-    doneBtn.onclick = () => go(`/quizzes?module=${encodeURIComponent(data.mod || LEARN_MODULES[0].id)}`);
+    doneBtn.onclick = () => go(isAllMode ? "/learn" : `/quizzes?module=${encodeURIComponent(data.mod || LEARN_MODULES[0].id)}`);
   }
 }
 
@@ -5928,6 +6279,7 @@ function initOnboarding() {
   const locationBtn = document.querySelector("#onboardLocationBtn");
   const locationStatus = document.querySelector("#onboardLocationStatus");
   const termsAccepted = document.querySelector("#onboardTermsAccepted");
+  const infoLinks = document.querySelectorAll("[data-onboard-info]");
 
   let currentStep = 1;
   let chosenHelper = localStorage.getItem(STORAGE_KEYS.helper) || "";
@@ -5935,6 +6287,63 @@ function initOnboarding() {
     (localStorage.getItem(STORAGE_KEYS.interests) || "").split(",").filter(Boolean)
   );
   let chosenCoords = null;
+  const onboardingInfo = {
+    competency: {
+      title: "Confidence-based personalisation",
+      subtitle: "Your finance confidence shapes how the app explains things.",
+      sections: [
+        { title: "Money Minutes", copy: "Beginner profiles see simpler reels first, while more advanced profiles see deeper topics sooner." },
+        { title: "AI Insights", copy: "Insight wording adapts so advice feels clearer and less overwhelming." },
+        { title: "Practice Investing", copy: "Educational prompts stay in demo mode and adjust how much jargon is shown." }
+      ]
+    },
+    interests: {
+      title: "Interest-based recommendations",
+      subtitle: "Your chosen interests personalise the discovery screens.",
+      sections: [
+        { title: "Deal Nest", copy: "Student discounts are prioritised around the categories you choose here, like food, travel, tech, or concerts." },
+        { title: "Shopping List", copy: "Nearby grocery and everyday spend ideas are easier to surface when the app knows your likely patterns." },
+        { title: "AI Chatbot", copy: "The assistant uses your interests to suggest the most relevant next screen or savings action." }
+      ]
+    },
+    location: {
+      title: "Location usage",
+      subtitle: "Location is optional and only used for local discovery in this demo.",
+      sections: [
+        { title: "Deal Nest", copy: "Nearby stores and student offers can be prioritised when location is available." },
+        { title: "Shopping & errands", copy: "Local grocery suggestions can be framed around stores that are closer to you." },
+        { title: "Control", copy: "You can leave location off and still use the app. It is only there to make recommendations feel more relevant." }
+      ]
+    },
+    terms: {
+      title: "Feature terms and app usage",
+      subtitle: "General terms for the demo features inside this app.",
+      sections: [
+        { title: "Payments and budgeting", copy: "You should only send money you intend to move. Budgeting Pots, Payments, and Bill Splitting are planning tools and do not replace checking details yourself." },
+        { title: "Money Minutes, AI Insights, and AI Chatbot", copy: "Educational content and AI-generated suggestions are designed to guide learning and exploration. They are not regulated financial advice." },
+        { title: "Practice Investing", copy: "Practice Investing is demo-only. No real trades, assets, or returns are created inside this mode." },
+        { title: "Deal Nest and Shopping", copy: "Deals, codes, and local offers are illustrative demo content. Availability, pricing, and retailer terms can change outside the app." }
+      ]
+    }
+  };
+
+  const openOnboardingInfo = (key) => {
+    const config = onboardingInfo[key];
+    if (!config) return;
+    showContentModal({
+      kicker: "Onboarding Terms",
+      title: config.title,
+      subtitle: config.subtitle,
+      bodyHtml: config.sections.map((section) => `
+        <div class="content-modal-section">
+          <div class="content-modal-section-title">${escapeAssistantHtml(section.title)}</div>
+          <div class="content-modal-section-copy">${escapeAssistantHtml(section.copy)}</div>
+        </div>
+      `).join("")
+    });
+  };
+
+  const sanitizeOnboardingName = (value = "") => String(value).replace(/[0-9]/g, "");
 
   const renderStep = () => {
     if (step1) {
@@ -5979,6 +6388,33 @@ function initOnboarding() {
       }
     };
   });
+
+  infoLinks.forEach((link) => {
+    link.onclick = () => openOnboardingInfo(link.dataset.onboardInfo || "");
+  });
+
+  if (nameInput) {
+    nameInput.addEventListener("beforeinput", (event) => {
+      if (!event.data) return;
+      if (/[0-9]/.test(event.data)) event.preventDefault();
+    });
+    nameInput.addEventListener("input", () => {
+      const cleaned = sanitizeOnboardingName(nameInput.value);
+      if (nameInput.value !== cleaned) nameInput.value = cleaned;
+    });
+    nameInput.addEventListener("paste", (event) => {
+      const pasted = event.clipboardData?.getData("text") || "";
+      if (!/[0-9]/.test(pasted)) return;
+      event.preventDefault();
+      const cleaned = sanitizeOnboardingName(pasted);
+      const start = nameInput.selectionStart ?? nameInput.value.length;
+      const end = nameInput.selectionEnd ?? start;
+      const nextValue = `${nameInput.value.slice(0, start)}${cleaned}${nameInput.value.slice(end)}`;
+      nameInput.value = nextValue;
+      const caret = start + cleaned.length;
+      nameInput.setSelectionRange(caret, caret);
+    });
+  }
 
   if (locationBtn) {
     locationBtn.onclick = () => {
@@ -6158,18 +6594,16 @@ function initUnlock() {
 }
 
 function initTutorial() {
-  const stepEl = document.querySelector("#tutorialStep");
-  const totalEl = document.querySelector("#tutorialTotal");
+  const progressEl = document.querySelector("#tutorialProgress");
   const titleEl = document.querySelector("#tutorialTitle");
   const bodyEl = document.querySelector("#tutorialBody");
   const nextBtn = document.querySelector("#tutorialNext");
   const skipBtn = document.querySelector("#tutorialSkip");
 
   const render = () => {
-    if (stepEl) stepEl.textContent = "1";
-    if (totalEl) totalEl.textContent = String(GUIDED_TUTORIAL_STEPS.length);
-    if (titleEl) titleEl.textContent = "Interactive walkthrough";
-    if (bodyEl) bodyEl.textContent = "We will walk through the live app screens and show the current features: payments, pots, DMs, shopping, student deals, learning reels, insights, friends, the assistant, and settings.";
+    if (progressEl) progressEl.textContent = "Live app walkthrough";
+    if (titleEl) titleEl.textContent = "See the current One features";
+    if (bodyEl) bodyEl.textContent = "We will walk through the live app screens and show the current features: Payments, Budgeting Pots, DMs, Shopping List, Deal Nest, Practice Investing, Money Minutes, AI Insights, Friends, AI Chatbot, and Settings.";
     if (nextBtn) nextBtn.textContent = "Start";
   };
 

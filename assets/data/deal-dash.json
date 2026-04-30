@@ -427,5 +427,83 @@
     "category": "Drinks",
     "popularity": 63,
     "lastUpdated": "2026-02-01"
+  },
+  {
+    "id": "tesco-express-piccadilly-milk-2l",
+    "name": "Semi-Skimmed Milk",
+    "brand": "Tesco",
+    "price": 1.79,
+    "unit": "2L",
+    "store": "Tesco Express",
+    "distanceMiles": 0.6,
+    "address": "Tesco Express, Piccadilly Gardens",
+    "category": "Dairy",
+    "popularity": 80,
+    "lastUpdated": "2026-02-01"
+  },
+  {
+    "id": "coop-oxford-rd-milk-2l",
+    "name": "Semi-Skimmed Milk",
+    "brand": "Co-op",
+    "price": 1.95,
+    "unit": "2L",
+    "store": "Co-op",
+    "distanceMiles": 0.1,
+    "address": "Co-op, Oxford Road",
+    "category": "Dairy",
+    "popularity": 74,
+    "lastUpdated": "2026-02-01"
+  },
+  {
+    "id": "aldi-ancoats-spaghetti",
+    "name": "Spaghetti",
+    "brand": "Aldi",
+    "price": 0.72,
+    "unit": "500g",
+    "store": "Aldi",
+    "distanceMiles": 1.1,
+    "address": "Aldi, Great Ancoats St",
+    "category": "Pantry",
+    "popularity": 77,
+    "lastUpdated": "2026-02-01"
+  },
+  {
+    "id": "coop-oxford-rd-spaghetti",
+    "name": "Spaghetti",
+    "brand": "Co-op",
+    "price": 1.05,
+    "unit": "500g",
+    "store": "Co-op",
+    "distanceMiles": 0.1,
+    "address": "Co-op, Oxford Road",
+    "category": "Pantry",
+    "popularity": 68,
+    "lastUpdated": "2026-02-01"
+  },
+  {
+    "id": "aldi-ancoats-bananas",
+    "name": "Bananas",
+    "brand": "Aldi",
+    "price": 0.94,
+    "unit": "1kg",
+    "store": "Aldi",
+    "distanceMiles": 1.1,
+    "address": "Aldi, Great Ancoats St",
+    "category": "Produce",
+    "popularity": 82,
+    "lastUpdated": "2026-02-01"
+  },
+  {
+    "id": "tesco-piccadilly-bananas",
+    "name": "Bananas",
+    "brand": "Tesco",
+    "price": 1.22,
+    "unit": "1kg",
+    "store": "Tesco Express",
+    "distanceMiles": 0.6,
+    "address": "Tesco Express, Piccadilly Gardens",
+    "category": "Produce",
+    "popularity": 70,
+    "lastUpdated": "2026-02-01"
   }
 ]
