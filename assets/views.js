@@ -3035,6 +3035,7 @@ function initPayments() {
   const query = hash.includes("?") ? hash.split("?")[1] : "";
   const params = new URLSearchParams(query);
   const preselectRecipientId = params.get("to") || "";
+  const qrImageSrc = "./QR_code_for_mobile_English_Wikipedia.svg";
 
   if (sendFromSelect) {
     getProfile().then((profile) => {
@@ -3080,6 +3081,16 @@ function initPayments() {
     }
   };
 
+  const chooseRandomRecipient = () => {
+    if (!sendToSelect || !recipients.length) return null;
+    const pool = recipients.filter((recipient) => String(recipient?.id || "").trim());
+    if (!pool.length) return null;
+    const selected = pool[Math.floor(Math.random() * pool.length)];
+    if (!selected) return null;
+    sendToSelect.value = selected.id;
+    return selected;
+  };
+
   const openQrModal = (mode = "scan") => {
     if (mode === "show") {
       showContentModal({
@@ -3088,7 +3099,9 @@ function initPayments() {
         subtitle: "Friends could scan this to pay or request money in a real flow.",
         bodyHtml: `
           <div class="content-modal-section">
-            <div class="fake-qr-code" aria-hidden="true"></div>
+            <div class="payments-qr-image-shell">
+              <img class="payments-qr-image" src="${qrImageSrc}" alt="Example QR code" />
+            </div>
             <div class="content-modal-section-copy" style="margin-top:12px;">Account: Main current account<br/>Name: Demo One user</div>
           </div>
         `
@@ -3103,23 +3116,35 @@ function initPayments() {
       bodyHtml: `
         <div class="qr-camera-shell">
           <video id="qrDemoVideo" autoplay muted playsinline></video>
-          <div id="qrDemoFallback" class="qr-camera-fallback hidden">Camera preview</div>
+          <div id="qrDemoFallback" class="qr-camera-fallback hidden">
+            <img class="payments-qr-image scan-preview" src="${qrImageSrc}" alt="QR code scan preview" />
+          </div>
         </div>
-        <div class="qr-camera-caption">Point the camera at a QR code to simulate send or receive money.</div>
+        <div class="qr-camera-caption">Scanning QR code...</div>
       `,
       actionText: "Close",
       onOpen: (overlay) => {
         const video = overlay.querySelector("#qrDemoVideo");
         const fallback = overlay.querySelector("#qrDemoFallback");
+        const scanTimer = window.setTimeout(() => {
+          const picked = chooseRandomRecipient();
+          closeContentModal();
+          if (picked) {
+            showTopNotification(`QR code scanned. Recipient set to ${picked.name || "friend"}.`);
+          }
+        }, 3000);
         const streamPromise = navigator.mediaDevices?.getUserMedia
           ? navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
           : Promise.reject(new Error("Camera unavailable"));
+        overlay._cleanup = () => {
+          window.clearTimeout(scanTimer);
+          if (video?.srcObject) {
+            video.srcObject.getTracks().forEach((track) => track.stop());
+            video.srcObject = null;
+          }
+        };
         streamPromise
           .then((stream) => {
-            overlay._cleanup = () => {
-              stream.getTracks().forEach((track) => track.stop());
-              if (video) video.srcObject = null;
-            };
             if (video) video.srcObject = stream;
           })
           .catch(() => {
