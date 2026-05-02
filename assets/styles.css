@@ -4957,6 +4957,7 @@ background: #eef5f0;
 
   .reel-overlay {
     padding-inline: 14px;
+    padding-bottom: calc(var(--nav-height) + 16px);
   }
 
   .reel-meta {
@@ -4972,6 +4973,12 @@ background: #eef5f0;
   .reel-explain {
     min-width: 58px;
     min-height: 58px;
+  }
+}
+
+@media (max-width: 480px) {
+  .reel-overlay {
+    padding-bottom: calc(var(--nav-height) + 18px);
   }
 }
 
