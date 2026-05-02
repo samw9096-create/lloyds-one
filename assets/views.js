@@ -861,6 +861,9 @@ function buildAssistantResponse(question, snapshot, path) {
 }
 
 function renderAssistantResponseCard(payload) {
+  if (payload?.kind === "pot-flow") {
+    return renderAssistantPotFlowCard(payload);
+  }
   const bullets = Array.isArray(payload?.bullets) ? payload.bullets.filter(Boolean) : [];
   const actions = Array.isArray(payload?.actions) ? payload.actions.filter(Boolean) : [];
   return `
@@ -870,6 +873,48 @@ function renderAssistantResponseCard(payload) {
       <div class="assistant-card-body">${escapeAssistantHtml(payload?.body || "")}</div>
       ${bullets.length ? `<div class="assistant-bullets">${bullets.map((item) => `<div class="assistant-bullet"><span></span><div>${escapeAssistantHtml(item)}</div></div>`).join("")}</div>` : ""}
       ${actions.length ? `<div class="assistant-actions">${actions.map((action) => `<button class="assistant-action-btn" type="button" data-assistant-route="${escapeAssistantHtml(action.route || "")}">${escapeAssistantHtml(action.label || "Open")}</button>`).join("")}</div>` : ""}
+    </div>
+  `;
+}
+
+function renderAssistantPotFlowCard(payload) {
+  const step = payload?.step || "name";
+  const title = escapeAssistantHtml(payload?.title || "Create a budgeting pot");
+  const body = escapeAssistantHtml(payload?.body || "");
+  const selectedName = payload?.potName ? `<div class="assistant-flow-summary">Name: <strong>${escapeAssistantHtml(payload.potName)}</strong></div>` : "";
+  const selectedColor = payload?.colorLabel ? `<div class="assistant-flow-summary">Colour: <strong>${escapeAssistantHtml(payload.colorLabel)}</strong></div>` : "";
+  const colorChoices = Array.isArray(payload?.colorChoices) ? payload.colorChoices : [];
+  const emojiChoices = Array.isArray(payload?.emojiChoices) ? payload.emojiChoices : [];
+
+  return `
+    <div class="assistant-card assistant-flow-card">
+      <div class="assistant-card-kicker">Agentic Sequence</div>
+      <div class="assistant-card-title">${title}</div>
+      <div class="assistant-card-body">${body}</div>
+      ${selectedName || selectedColor ? `<div class="assistant-flow-stack">${selectedName}${selectedColor}</div>` : ""}
+      ${step === "name" ? `<div class="assistant-flow-note">Reply in the chat box with the pot name you want.</div>` : ""}
+      ${step === "color" ? `
+        <div class="assistant-flow-label">Choose a colour</div>
+        <div class="assistant-color-grid">
+          ${colorChoices.map((choice) => `
+            <button class="assistant-color-btn" type="button" data-assistant-pot-color="${escapeAssistantHtml(choice.value)}" data-assistant-pot-label="${escapeAssistantHtml(choice.label)}">
+              <span class="assistant-color-swatch" style="background:${escapeAssistantHtml(choice.value)};"></span>
+              <span>${escapeAssistantHtml(choice.label)}</span>
+            </button>
+          `).join("")}
+        </div>
+      ` : ""}
+      ${step === "emoji" ? `
+        <div class="assistant-flow-label">Pick an emoji</div>
+        <div class="assistant-emoji-grid">
+          ${emojiChoices.map((choice) => `
+            <button class="assistant-emoji-btn ${choice.recommended ? "recommended" : ""}" type="button" data-assistant-pot-emoji="${escapeAssistantHtml(choice.value)}">
+              <span class="assistant-emoji-symbol">${escapeAssistantHtml(choice.value)}</span>
+              <span>${escapeAssistantHtml(choice.label)}</span>
+            </button>
+          `).join("")}
+        </div>
+      ` : ""}
     </div>
   `;
 }
@@ -942,6 +987,9 @@ function initAssistantWidget(profile, path = window.location.hash.replace(/^#/, 
   if (!backdrop || !panel || !trigger || !prompts || !log || !input || !send || !context || !clearBtn) return;
 
   const pageMeta = getAssistantPageMeta(path);
+  const assistantState = {
+    flow: null
+  };
   const headName = wrap.querySelector("#assistantHeadName");
   if (headName) headName.textContent = helper === "lucy" ? "Lucy" : "Louie";
   prompts.innerHTML = "";
@@ -970,6 +1018,93 @@ function initAssistantWidget(profile, path = window.location.hash.replace(/^#/, 
     requestAnimationFrame(() => row.classList.remove("enter"));
     log.scrollTop = log.scrollHeight;
     return row;
+  };
+
+  const startBudgetPotFlow = () => {
+    assistantState.flow = {
+      type: "budget-pot",
+      step: "name",
+      potName: "",
+      color: "",
+      colorLabel: "",
+      emoji: ""
+    };
+    addLog({
+      kind: "pot-flow",
+      step: "name",
+      title: "Let’s make a new budgeting pot",
+      body: "What would you like to call it?"
+    }, "assistant");
+  };
+
+  const showBudgetPotColorStep = () => {
+    if (!assistantState.flow) return;
+    assistantState.flow.step = "color";
+    addLog({
+      kind: "pot-flow",
+      step: "color",
+      title: "Choose the colour",
+      body: "I’ve saved the name. Pick the colour you want for the new pot.",
+      potName: assistantState.flow.potName,
+      colorChoices: [
+        { value: POT_COLORS[0], label: "Mint" },
+        { value: POT_COLORS[1], label: "Sky" },
+        { value: POT_COLORS[2], label: "Lilac" },
+        { value: POT_COLORS[3], label: "Peach" },
+        { value: POT_COLORS[4], label: "Ice" },
+        { value: POT_COLORS[5], label: "Sage" }
+      ]
+    }, "assistant");
+  };
+
+  const showBudgetPotEmojiStep = () => {
+    if (!assistantState.flow) return;
+    assistantState.flow.step = "emoji";
+    addLog({
+      kind: "pot-flow",
+      step: "emoji",
+      title: "Pick the emoji",
+      body: "I’d recommend the car emoji for this one, but you can choose another if you want.",
+      potName: assistantState.flow.potName,
+      colorLabel: assistantState.flow.colorLabel,
+      emojiChoices: [
+        { value: "🚗", label: "Car", recommended: true },
+        { value: "🏎️", label: "Sport" },
+        { value: "🚕", label: "Taxi" },
+        { value: "🛻", label: "Pickup" },
+        { value: "🚌", label: "Bus" }
+      ]
+    }, "assistant");
+  };
+
+  const completeBudgetPotFlow = async () => {
+    const flow = assistantState.flow;
+    if (!flow?.potName || !flow?.color || !flow?.emoji) return;
+    const pots = await getBudgetPots();
+    const pot = {
+      id: `pot_${crypto.randomUUID ? crypto.randomUUID() : Date.now()}`,
+      name: flow.potName,
+      emoji: flow.emoji,
+      color: flow.color,
+      goal: 0,
+      balance: 0
+    };
+    pots.push(pot);
+    await setBudgetPots(pots);
+    assistantState.flow = null;
+    addLog({
+      title: "Budgeting pot created",
+      body: `${pot.name} is ready. I used ${pot.emoji} with the ${flow.colorLabel.toLowerCase()} colour and left the goal open so you can set it later.`,
+      bullets: [
+        `Pot name: ${pot.name}`,
+        `Emoji: ${pot.emoji}`,
+        "You can add a goal or move money into it from the Budgeting Pots screen."
+      ],
+      actions: [
+        { label: "Open this pot", route: `/pot-detail?id=${encodeURIComponent(pot.id)}` },
+        { label: "View all pots", route: "/budget-pots" }
+      ]
+    }, "assistant");
   };
 
   const showTyping = () => {
@@ -1027,6 +1162,23 @@ function initAssistantWidget(profile, path = window.location.hash.replace(/^#/, 
     if (!q) return;
     addLog(q, "user");
     input.value = "";
+    if (assistantState.flow?.type === "budget-pot" && assistantState.flow.step === "name") {
+      assistantState.flow.potName = q;
+      const typing = showTyping();
+      setTimeout(() => {
+        typing.remove();
+        showBudgetPotColorStep();
+      }, 420);
+      return;
+    }
+    if (q.toLowerCase().includes("help me make a new budgeting pot")) {
+      const typing = showTyping();
+      setTimeout(() => {
+        typing.remove();
+        startBudgetPotFlow();
+      }, 420);
+      return;
+    }
     const typing = showTyping();
     const snapshot = await snapshotPromise;
     const delayMs = 700 + Math.floor(Math.random() * 550);
@@ -1049,14 +1201,29 @@ function initAssistantWidget(profile, path = window.location.hash.replace(/^#/, 
 
   log.onclick = (event) => {
     const action = event.target.closest("[data-assistant-route]");
-    if (!action) return;
-    const route = action.getAttribute("data-assistant-route") || "/home";
-    go(route);
+    if (action) {
+      const route = action.getAttribute("data-assistant-route") || "/home";
+      go(route);
+      return;
+    }
+    const colorBtn = event.target.closest("[data-assistant-pot-color]");
+    if (colorBtn && assistantState.flow?.type === "budget-pot") {
+      assistantState.flow.color = colorBtn.getAttribute("data-assistant-pot-color") || POT_COLORS[0];
+      assistantState.flow.colorLabel = colorBtn.getAttribute("data-assistant-pot-label") || "Colour";
+      showBudgetPotEmojiStep();
+      return;
+    }
+    const emojiBtn = event.target.closest("[data-assistant-pot-emoji]");
+    if (emojiBtn && assistantState.flow?.type === "budget-pot") {
+      assistantState.flow.emoji = emojiBtn.getAttribute("data-assistant-pot-emoji") || "🚗";
+      completeBudgetPotFlow();
+    }
   };
 
   clearBtn.onclick = async () => {
     log.innerHTML = "";
     delete log.dataset.seeded;
+    assistantState.flow = null;
     snapshotPromise = buildAssistantSnapshot(profile).catch(() => ({
       userName: profile?.name || "there",
       balance: 0,
