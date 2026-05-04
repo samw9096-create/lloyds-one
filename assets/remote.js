@@ -499,6 +499,47 @@ export async function callAccountAdmin(action) {
   return { ok: true, demo: true };
 }
 
+export async function askGeminiAssistant({ question, snapshot, path, history }) {
+  const payload = {
+    question: String(question || "").slice(0, 1200),
+    snapshot: snapshot || {},
+    path: path || "/home",
+    history: Array.isArray(history) ? history.slice(-8) : []
+  };
+
+  try {
+    const { data, error } = await supabase.functions.invoke("gemini-chat", {
+      body: payload
+    });
+    if (error) throw error;
+    if (!data?.ok || !data?.response) throw new Error(data?.error || "Gemini response unavailable.");
+    return data.response;
+  } catch (error) {
+    console.warn("Gemini assistant unavailable; using local response.", error);
+    return null;
+  }
+}
+
+export async function askGeminiInsights({ period, periodData, context }) {
+  const payload = {
+    period: period || "week",
+    periodData: periodData || {},
+    context: context || {}
+  };
+
+  try {
+    const { data, error } = await supabase.functions.invoke("gemini-insights", {
+      body: payload
+    });
+    if (error) throw error;
+    if (!data?.ok || !Array.isArray(data?.insights)) throw new Error(data?.error || "Gemini insights unavailable.");
+    return data;
+  } catch (error) {
+    console.warn("Gemini insights unavailable; using local analysis.", error);
+    return null;
+  }
+}
+
 export async function fetchDatasetOverview() {
   return {
     product_count: 8,

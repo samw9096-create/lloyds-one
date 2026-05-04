@@ -29,7 +29,9 @@ import {
   fetchDatasetInteractionHotspots,
   fetchDemoAdminSnapshot,
   adminSetDemoBalance,
-  adminCreateDemoTransaction
+  adminCreateDemoTransaction,
+  askGeminiAssistant,
+  askGeminiInsights
 } from "./remote.js";
 
 const STORAGE_KEYS = {
@@ -43,7 +45,8 @@ const STORAGE_KEYS = {
   dmThreads: "dmThreads",
   dmUnread: "dmUnread",
   incomingSeenAt: "incomingSeenAt",
-  tutorialWalkthroughStep: "tutorialWalkthroughStep"
+  tutorialWalkthroughStep: "tutorialWalkthroughStep",
+  qrPayeeId: "qrPayeeId"
 };
 const ROUTE_MEMORY_KEYS = {
   current: "routeCurrentPath",
@@ -866,9 +869,10 @@ function renderAssistantResponseCard(payload) {
   }
   const bullets = Array.isArray(payload?.bullets) ? payload.bullets.filter(Boolean) : [];
   const actions = Array.isArray(payload?.actions) ? payload.actions.filter(Boolean) : [];
+  const kicker = payload?.source === "gemini" ? "Gemini Analysis" : "Agentic Analysis";
   return `
     <div class="assistant-card">
-      <div class="assistant-card-kicker">Agentic Analysis</div>
+      <div class="assistant-card-kicker">${escapeAssistantHtml(kicker)}</div>
       <div class="assistant-card-title">${escapeAssistantHtml(payload?.title || "One Agent")}</div>
       <div class="assistant-card-body">${escapeAssistantHtml(payload?.body || "")}</div>
       ${bullets.length ? `<div class="assistant-bullets">${bullets.map((item) => `<div class="assistant-bullet"><span></span><div>${escapeAssistantHtml(item)}</div></div>`).join("")}</div>` : ""}
@@ -988,7 +992,8 @@ function initAssistantWidget(profile, path = window.location.hash.replace(/^#/, 
 
   const pageMeta = getAssistantPageMeta(path);
   const assistantState = {
-    flow: null
+    flow: null,
+    history: []
   };
   const headName = wrap.querySelector("#assistantHeadName");
   if (headName) headName.textContent = helper === "lucy" ? "Lucy" : "Louie";
@@ -1018,6 +1023,22 @@ function initAssistantWidget(profile, path = window.location.hash.replace(/^#/, 
     requestAnimationFrame(() => row.classList.remove("enter"));
     log.scrollTop = log.scrollHeight;
     return row;
+  };
+
+  const rememberAssistantTurn = (role, payload) => {
+    const text = typeof payload === "string"
+      ? payload
+      : [
+          payload?.title,
+          payload?.body,
+          ...(Array.isArray(payload?.bullets) ? payload.bullets : [])
+        ].filter(Boolean).join(" ");
+    if (!text) return;
+    assistantState.history.push({
+      role,
+      text: String(text).slice(0, 900)
+    });
+    assistantState.history = assistantState.history.slice(-10);
   };
 
   const startBudgetPotFlow = () => {
@@ -1161,6 +1182,7 @@ function initAssistantWidget(profile, path = window.location.hash.replace(/^#/, 
     const q = input.value.trim();
     if (!q) return;
     addLog(q, "user");
+    rememberAssistantTurn("user", q);
     input.value = "";
     if (assistantState.flow?.type === "budget-pot" && assistantState.flow.step === "name") {
       assistantState.flow.potName = q;
@@ -1181,21 +1203,28 @@ function initAssistantWidget(profile, path = window.location.hash.replace(/^#/, 
     }
     const typing = showTyping();
     const snapshot = await snapshotPromise;
-    const delayMs = 700 + Math.floor(Math.random() * 550);
-    const response = buildAssistantResponse(q, snapshot, path);
-    setTimeout(() => {
-      typing.remove();
-      addLog(response, "assistant");
-    }, delayMs);
+    const response = await askGeminiAssistant({
+      question: q,
+      snapshot,
+      path,
+      history: assistantState.history
+    }) || buildAssistantResponse(q, snapshot, path);
+    typing.remove();
+    addLog(response, "assistant");
+    rememberAssistantTurn("assistant", response);
   };
 
   wrap.__assistantOpenPreset = (userText, responsePayload) => {
-    if (userText) addLog(userText, "user");
+    if (userText) {
+      addLog(userText, "user");
+      rememberAssistantTurn("user", userText);
+    }
     const typing = showTyping();
     const delayMs = 520 + Math.floor(Math.random() * 280);
     setTimeout(() => {
       typing.remove();
       addLog(responsePayload, "assistant");
+      rememberAssistantTurn("assistant", responsePayload);
     }, delayMs);
   };
 
@@ -1224,6 +1253,7 @@ function initAssistantWidget(profile, path = window.location.hash.replace(/^#/, 
     log.innerHTML = "";
     delete log.dataset.seeded;
     assistantState.flow = null;
+    assistantState.history = [];
     snapshotPromise = buildAssistantSnapshot(profile).catch(() => ({
       userName: profile?.name || "there",
       balance: 0,
@@ -3202,7 +3232,49 @@ function initPayments() {
   const query = hash.includes("?") ? hash.split("?")[1] : "";
   const params = new URLSearchParams(query);
   const preselectRecipientId = params.get("to") || "";
-  const qrImageSrc = "./QR_code_for_mobile_English_Wikipedia.svg";
+
+  const getOrCreateQrPayeeId = () => {
+    const existing = localStorage.getItem(STORAGE_KEYS.qrPayeeId);
+    if (existing) return existing;
+    const next = `one_pay_${crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`}`;
+    localStorage.setItem(STORAGE_KEYS.qrPayeeId, next);
+    return next;
+  };
+
+  const buildPaymentQrPayload = async () => {
+    const profile = await getProfile();
+    const name = profile?.name || profile?.displayName || profile?.fullName || "One user";
+    const userId = getOrCreateQrPayeeId();
+    const payload = new URL("onepay://recipient");
+    payload.searchParams.set("userId", userId);
+    payload.searchParams.set("name", name);
+    payload.searchParams.set("v", "1");
+    return { userId, name, payload: payload.toString() };
+  };
+
+  const qrImageUrlForPayload = (payload) =>
+    `https://api.qrserver.com/v1/create-qr-code/?size=360x360&margin=16&data=${encodeURIComponent(payload)}`;
+
+  const parsePaymentQrPayload = (value) => {
+    const raw = String(value || "").trim();
+    if (!raw) return null;
+    try {
+      const url = new URL(raw);
+      const isOnePay = url.protocol === "onepay:" && url.hostname === "recipient";
+      if (!isOnePay) return null;
+      const userId = url.searchParams.get("userId") || "";
+      const name = url.searchParams.get("name") || "";
+      if (!userId || !name) return null;
+      return {
+        id: userId,
+        name: name.slice(0, 80),
+        isFake: true,
+        fromQr: true
+      };
+    } catch {
+      return null;
+    }
+  };
 
   if (sendFromSelect) {
     getProfile().then((profile) => {
@@ -3258,18 +3330,46 @@ function initPayments() {
     return selected;
   };
 
-  const openQrModal = (mode = "scan") => {
+  const setScannedRecipient = (recipient) => {
+    if (!sendToSelect || !recipient?.id) return false;
+    const currentQrId = localStorage.getItem(STORAGE_KEYS.qrPayeeId);
+    if (currentQrId && String(recipient.id) === String(currentQrId)) {
+      showActionModal({
+        title: "Own QR Scanned",
+        message: "Ask the other person to show their QR code before you send money."
+      });
+      return false;
+    }
+    let option = [...sendToSelect.options].find((opt) => opt.value === recipient.id);
+    if (!option) {
+      option = document.createElement("option");
+      option.value = recipient.id;
+      option.textContent = recipient.name || "Scanned recipient";
+      option.dataset.fake = "true";
+      option.dataset.qr = "true";
+      sendToSelect.appendChild(option);
+    }
+    const existing = recipients.find((item) => item.id === recipient.id);
+    if (!existing) recipients.push(recipient);
+    sendToSelect.value = recipient.id;
+    return true;
+  };
+
+  const openQrModal = async (mode = "scan") => {
     if (mode === "show") {
+      const qr = await buildPaymentQrPayload();
+      const qrImageSrc = qrImageUrlForPayload(qr.payload);
       showContentModal({
         kicker: "QR Payments",
-        title: "Your demo QR code",
-        subtitle: "Friends could scan this to pay or request money in a real flow.",
+        title: "Your payment QR code",
+        subtitle: "Ask the other person to scan this from their Payments page.",
         bodyHtml: `
           <div class="content-modal-section">
             <div class="payments-qr-image-shell">
-              <img class="payments-qr-image" src="${qrImageSrc}" alt="Example QR code" />
+              <img class="payments-qr-image" src="${qrImageSrc}" alt="Payment QR code for ${escapeAssistantHtml(qr.name)}" />
             </div>
-            <div class="content-modal-section-copy" style="margin-top:12px;">Account: Main current account<br/>Name: Demo One user</div>
+            <div class="content-modal-section-copy" style="margin-top:12px;">Account: Main current account<br/>Name: ${escapeAssistantHtml(qr.name)}</div>
+            <div class="qr-manual-code" aria-label="Payment QR fallback code">${escapeAssistantHtml(qr.payload)}</div>
           </div>
         `
       });
@@ -3279,44 +3379,90 @@ function initPayments() {
     showContentModal({
       kicker: "QR Payments",
       title: "Scan a QR code",
-      subtitle: "Camera preview only in this demo. No real QR code is processed.",
+      subtitle: "Point your camera at another One payment QR code.",
       bodyHtml: `
         <div class="qr-camera-shell">
           <video id="qrDemoVideo" autoplay muted playsinline></video>
           <div id="qrDemoFallback" class="qr-camera-fallback hidden">
-            <img class="payments-qr-image scan-preview" src="${qrImageSrc}" alt="QR code scan preview" />
+            Camera scanning is unavailable on this browser.
           </div>
         </div>
-        <div class="qr-camera-caption">Scanning QR code...</div>
+        <div id="qrCameraCaption" class="qr-camera-caption">Scanning QR code...</div>
+        <div class="qr-manual-entry">
+          <input id="qrManualInput" class="input" type="text" placeholder="Paste payment QR code" />
+          <button id="qrManualApply" class="action-btn" type="button">Use Code</button>
+        </div>
       `,
       actionText: "Close",
       onOpen: (overlay) => {
         const video = overlay.querySelector("#qrDemoVideo");
         const fallback = overlay.querySelector("#qrDemoFallback");
-        const scanTimer = window.setTimeout(() => {
-          const picked = chooseRandomRecipient();
-          closeContentModal();
-          if (picked) {
-            showTopNotification(`QR code scanned. Recipient set to ${picked.name || "friend"}.`);
+        const caption = overlay.querySelector("#qrCameraCaption");
+        const manualInput = overlay.querySelector("#qrManualInput");
+        const manualApply = overlay.querySelector("#qrManualApply");
+        let stopped = false;
+        let stream = null;
+        let scanTimer = null;
+
+        const applyPayload = (rawValue) => {
+          const scanned = parsePaymentQrPayload(rawValue);
+          if (!scanned) {
+            if (caption) caption.textContent = "That QR code is not a One payment code.";
+            return false;
           }
-        }, 3000);
+          const applied = setScannedRecipient(scanned);
+          if (!applied) return false;
+          closeContentModal();
+          showTopNotification(`QR code scanned. Recipient set to ${scanned.name || "friend"}.`);
+          return true;
+        };
+
+        if (manualApply) {
+          manualApply.onclick = () => applyPayload(manualInput?.value || "");
+        }
+
+        const startDetector = async () => {
+          if (!("BarcodeDetector" in window)) throw new Error("BarcodeDetector unavailable");
+          const detector = new window.BarcodeDetector({ formats: ["qr_code"] });
+          const tick = async () => {
+            if (stopped || !video || video.readyState < 2) {
+              if (!stopped) scanTimer = window.setTimeout(tick, 350);
+              return;
+            }
+            try {
+              const codes = await detector.detect(video);
+              const first = codes?.[0]?.rawValue || "";
+              if (first && applyPayload(first)) return;
+            } catch {}
+            if (!stopped) scanTimer = window.setTimeout(tick, 450);
+          };
+          tick();
+        };
+
         const streamPromise = navigator.mediaDevices?.getUserMedia
           ? navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
           : Promise.reject(new Error("Camera unavailable"));
         overlay._cleanup = () => {
-          window.clearTimeout(scanTimer);
-          if (video?.srcObject) {
-            video.srcObject.getTracks().forEach((track) => track.stop());
+          stopped = true;
+          if (scanTimer) window.clearTimeout(scanTimer);
+          if (stream) {
+            stream.getTracks().forEach((track) => track.stop());
+            stream = null;
+          }
+          if (video) {
             video.srcObject = null;
           }
         };
         streamPromise
-          .then((stream) => {
-            if (video) video.srcObject = stream;
+          .then((cameraStream) => {
+            stream = cameraStream;
+            if (video) video.srcObject = cameraStream;
+            return startDetector();
           })
           .catch(() => {
             if (video) video.classList.add("hidden");
             if (fallback) fallback.classList.remove("hidden");
+            if (caption) caption.textContent = "Paste the QR code text below, or use a browser with QR scanning support.";
           });
       }
     });
@@ -4088,8 +4234,7 @@ async function initInsights() {
     return [...real, ...synthetic].filter((tx) => tx.date instanceof Date && !Number.isNaN(tx.date.getTime()) && tx.amount > 0);
   };
 
-  const renderAnalysis = (periodData) => {
-    if (!analysisList || !analysisMeta) return;
+  const buildLocalAnalysis = (periodData) => {
     const { total, income, categories, trendValues } = periodData;
     const top = categories[0] || { name: "Other", amount: 0 };
     const target = Number(getCategoryMeta(top.name).monthlyTarget || 0);
@@ -4112,9 +4257,56 @@ async function initInsights() {
       `${top.name} is your largest category at ${fmt(top.amount)} (${topPct}% of spend).`
     ].filter(Boolean);
 
-    analysisMeta.textContent = `Built from ${realTxCount} recent account transactions + ${syntheticTxCount} simulated finance records.`;
+    return {
+      source: "local",
+      meta: `Built from ${realTxCount} recent account transactions + ${syntheticTxCount} simulated finance records.`,
+      insights: lines
+    };
+  };
+
+  const renderAnalysis = async (periodData) => {
+    if (!analysisList || !analysisMeta) return;
+    const local = buildLocalAnalysis(periodData);
+
+    analysisMeta.textContent = "Asking Gemini for a fresh spending read...";
     analysisList.innerHTML = "";
-    lines.forEach((line) => {
+    local.insights.forEach((line) => {
+      const item = document.createElement("div");
+      item.className = "insights-analysis-item";
+      item.textContent = line;
+      analysisList.appendChild(item);
+    });
+
+    const gemini = await askGeminiInsights({
+      period: activePeriod,
+      periodData: {
+        total: Math.round(periodData.total * 100) / 100,
+        income: Math.round(periodData.income * 100) / 100,
+        safeToSpend: Math.round(periodData.safeToSpend * 100) / 100,
+        categories: periodData.categories.map((cat) => ({
+          name: cat.name,
+          amount: Math.round(cat.amount * 100) / 100
+        })),
+        trend: periodData.trend.map((point) => ({
+          label: point.label,
+          value: Math.round(point.value * 100) / 100
+        }))
+      },
+      context: {
+        realTxCount,
+        syntheticTxCount,
+        currency: "GBP"
+      }
+    });
+
+    const next = gemini?.insights?.length ? {
+      meta: gemini.meta || `Gemini analysis built from ${realTxCount} recent account transactions + ${syntheticTxCount} simulated finance records.`,
+      insights: gemini.insights
+    } : local;
+
+    analysisMeta.textContent = next.meta;
+    analysisList.innerHTML = "";
+    next.insights.forEach((line) => {
       const item = document.createElement("div");
       item.className = "insights-analysis-item";
       item.textContent = line;
@@ -4289,7 +4481,7 @@ async function initInsights() {
       });
     }
 
-    renderAnalysis(d);
+    await renderAnalysis(d);
     saveHomeInsightsSnapshot(period, d);
   };
 

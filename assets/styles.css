@@ -21,6 +21,27 @@
   --dur-slow: 420ms;
 }
 
+/* Small eyebrow/kicker labels above primary titles are intentionally hidden app-wide. */
+.payments-kicker,
+.reels-kicker,
+.learn-reel-kicker,
+.wrapped-eyebrow,
+.wrapped-kicker,
+.student-deals-kicker,
+.payments-qr-kicker,
+.content-modal-kicker,
+.assistant-card-kicker,
+.unlock-eyebrow,
+.shopping-eyebrow {
+  display: none !important;
+}
+
+.payments-qr-title,
+.content-modal-title,
+.reels-title {
+  margin-top: 0;
+}
+
 
 html[data-mode="dark"] {
   --bg: #0f1210;
@@ -5134,6 +5155,29 @@ background: #eef5f0;
   color: #607267;
   font-size: 12px;
   line-height: 1.5;
+}
+
+.qr-manual-code {
+  margin-top: 10px;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(10, 168, 93, 0.08);
+  color: #315743;
+  font-size: 10px;
+  line-height: 1.35;
+  word-break: break-all;
+}
+
+.qr-manual-entry {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.qr-manual-entry .input {
+  min-height: 42px;
+  font-size: 13px;
 }
 
 .receipt-grid {
