@@ -1,4 +1,5 @@
-// assets/nav.js
+// bottom nav bar created once and used across whole app
+
 import { go } from "./router.js";
 
 let mounted = false;

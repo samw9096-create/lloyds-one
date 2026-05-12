@@ -1,3 +1,5 @@
+// prototype version stores locally in indexeddb, including UI personalisation for speed
+
 import { get, set, del } from "./storage.js";
 
 const AUTH_KEY = "auth_state";

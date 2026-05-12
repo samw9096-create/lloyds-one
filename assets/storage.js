@@ -1,3 +1,5 @@
+// controls local storage of the app
+
 const DB_NAME = "lloyds_one_db";
 const DB_VER = 1;
 const STORE = "kv";

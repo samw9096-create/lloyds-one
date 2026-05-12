@@ -1,4 +1,6 @@
-// assets/views.js
+// each function  controls a HTML view/functions and helpers control formatting, modals, profile 
+
+
 import { go } from "./router.js";
 import {
   signUpWithEmail,
@@ -27,6 +29,8 @@ import {
   fetchDatasetCustomerProfiles,
   fetchDatasetRecentActivity,
   fetchDatasetInteractionHotspots,
+  fetchMoneyMinutesModules,
+  fetchDealNestItems,
   fetchDemoAdminSnapshot,
   adminSetDemoBalance,
   adminCreateDemoTransaction,
@@ -117,6 +121,7 @@ const GUIDED_TUTORIAL_STEPS = [
   { path: "/settings", selector: ".settings-section", title: "Settings & Control", body: "Use Settings to manage themes, accessibility, privacy, onboarding replay, notifications, and account reset tools." }
 ];
 
+// checks if the session is unlocked to see if passcode is needed
 function isDemoSessionUnlocked() {
   return sessionStorage.getItem("demo_app_unlocked") === "1";
 }
@@ -137,6 +142,7 @@ async function getBudgetPots() {
   return Array.isArray(profile.budgetPots) ? profile.budgetPots : [];
 }
 
+// this function controls the practice investment portfolio, with the default amounts and values
 function getDefaultPracticePortfolio() {
   return {
     cash: 10000,
@@ -175,6 +181,7 @@ async function setBudgetPots(pots) {
   return pots;
 }
 
+// this helper keep money/date output consistent 
 function formatMoney(value) {
   return `£${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
@@ -273,6 +280,7 @@ async function getAvailableMainAccountBalance() {
   }
 }
 
+// this function controls floating notification used across different views
 function showActionModal({ title = "Notice", message = "", actionText = "OK" } = {}) {
   let overlay = document.querySelector("#actionModalOverlay");
   if (!overlay) {
@@ -441,7 +449,7 @@ function showTopNotification(message) {
     };
   }
   toast.classList.remove("show");
-  // Restart animation for rapid consecutive completions
+  // ensures animation restarts when action is spammed
   void toast.offsetWidth;
   toast.classList.add("show");
   const durationMs = Number(payload.durationMs || 5200);
@@ -940,6 +948,7 @@ function renderAssistantContext(snapshot, path) {
   `;
 }
 
+// this function intilialises the chatbot and is placed on every page of the app
 function initAssistantWidget(profile, path = window.location.hash.replace(/^#/, "") || "/home") {
   let wrap = document.querySelector("#assistantWidget");
   if (!wrap) {
@@ -1442,6 +1451,7 @@ function backTargetFor(path) {
   return BACK_FALLBACKS[path] || "/home";
 }
 
+// puts the current route to the view initialiser after app.js swaps the HTML view into #app.
 export async function initView(path) {
   if (path !== "/practice-investing" && window.__practiceInvestingTicker) {
     clearInterval(window.__practiceInvestingTicker);
@@ -2372,6 +2382,7 @@ async function initLogin() {
 
 }
 
+// homepage widgets and controls
 function initHome() {
   const filterBtns = document.querySelectorAll("[data-filter]");
   const items = document.querySelectorAll("[data-transaction]");
@@ -3218,6 +3229,7 @@ function initShoppingList() {
   loadDeals();
 }
 
+// widgets and functions for the payments page
 function initPayments() {
   const sendBtn = document.querySelector("#sendMoneyBtn");
   const sendToSelect = document.querySelector("#sendToSelect");
@@ -4081,6 +4093,7 @@ function initPotDetail() {
   render();
 }
 
+// widgets and functions for AI insights
 async function initInsights() {
   const periodBtns = document.querySelectorAll("[data-period]");
   const totalEl = document.querySelector("#insightsTotal");
@@ -5014,6 +5027,7 @@ function initBudgetPots() {
   render();
 }
 
+// widgets and functions for deal nest
 function initDealNest() {
   const search = document.querySelector("#dealSearch");
   const chips = document.querySelectorAll("[data-sort]");
@@ -5219,10 +5233,17 @@ function initDealNest() {
       .join("");
     loading.classList.remove("hidden");
   }
-  fetch("./assets/data/student-deals.json")
-    .then((res) => res.json())
+  fetchDealNestItems()
     .then(async (data) => {
-      allItems = Array.isArray(data) ? data : [];
+      if (Array.isArray(data) && data.length) {
+        allItems = data;
+        return;
+      }
+      const res = await fetch("./assets/data/student-deals.json");
+      allItems = await res.json();
+    })
+    .then(async () => {
+      allItems = Array.isArray(allItems) ? allItems : [];
       lastRenderCount = allItems.length || lastRenderCount;
       await personalise();
       filterAndSort();
@@ -5756,8 +5777,7 @@ function initMoneyMinutes() {
       try {
         await video.play();
       } catch {
-        // ignore autoplay restrictions
-      }
+        // ensures the video autoplays whilst being muted
       updateIcon();
     };
 
@@ -5765,7 +5785,7 @@ function initMoneyMinutes() {
   });
 }
 
-// Learning content (modules + quizzes)
+// money minutes questions
 const LEARN_MODULES = [
   {
     id: "mod-foundations",
@@ -5809,16 +5829,16 @@ const LEARN_MODULES = [
   }
 ];
 
-function modulesForCompetency(level = "beginner") {
+function modulesForCompetency(level = "beginner", modules = LEARN_MODULES) {
   if (level === "expert" || level === "confident") {
-    return [...LEARN_MODULES].sort((a, b) => b.difficultyLevel - a.difficultyLevel);
+    return [...modules].sort((a, b) => b.difficultyLevel - a.difficultyLevel);
   }
   if (level === "comfortable") {
-    return [...LEARN_MODULES]
+    return [...modules]
       .filter((m) => m.difficultyLevel <= 2 || m.id === "mod-investing")
       .sort((a, b) => a.difficultyLevel - b.difficultyLevel);
   }
-  return LEARN_MODULES.filter((m) => m.difficultyLevel <= 2);
+  return modules.filter((m) => m.difficultyLevel <= 2);
 }
 
 const QUIZ_VIDEO_PLACEHOLDER = "./Video-17.mp4";
@@ -5911,14 +5931,17 @@ function buildMoneyMinutesExplainPayload(lesson) {
   };
 }
 
+// widgets and functions for money minutes
 function initLearn() {
   const feed = document.querySelector("#learnReelsFeed");
   if (!feed) return;
   const quizBtn = document.querySelector("#moneyMinutesQuizBtn");
   if (quizBtn) quizBtn.onclick = () => go("/quiz-questions?mode=all&module=all");
 
-  getProfile().then((profile) => {
-    const moduleSet = modulesForCompetency(profile.financeCompetency);
+  getProfile().then(async (profile) => {
+    const remoteModules = await fetchMoneyMinutesModules();
+    const availableModules = remoteModules.length ? remoteModules : LEARN_MODULES;
+    const moduleSet = modulesForCompetency(profile.financeCompetency, availableModules);
     const completed = Array.isArray(profile.quizCompleted) ? profile.quizCompleted : [];
     const pct = moduleSet.length
       ? Math.round((completed.filter((id) => moduleSet.some((mod) => mod.quizzes.includes(id))).length / moduleSet.reduce((sum, mod) => sum + mod.quizzes.length, 0)) * 100) || 0
@@ -6217,9 +6240,7 @@ function initQuizVideo() {
       video.muted = !video.muted;
       try {
         await video.play();
-      } catch {
-        // ignore autoplay restrictions
-      }
+      } catch {}
       updateIcon();
     };
     updateIcon();
@@ -6510,7 +6531,7 @@ function initSettings() {
       try {
         await callAccountAdmin("reset");
       } catch {
-        // Keep going with local reset even if cloud reset fails.
+        // ensures account reset progresses in case of failure
       }
       await signOut();
       await resetLocalApp();

@@ -1,6 +1,4 @@
-// assets/router.js
-// Hash router: URLs look like /#/home or /#/payments
-// This avoids 404s on normal refresh on GitHub Pages/static hosts.
+// hash routing is used, so URLs look like /#/home or /#/payments to avoid 404s
 
 export function normalizePath(path) {
   if (!path.startsWith("/")) path = "/" + path;
@@ -8,8 +6,8 @@ export function normalizePath(path) {
 }
 
 export function currentPath() {
-  // default to splash if no hash
-  const hash = window.location.hash || "#/splash";
+  // default to splash on the web, but home when opening directly from the file system
+  const hash = window.location.hash || (window.location.protocol === "file:" ? "#/home" : "#/splash");
   const pathWithQuery = hash.startsWith("#") ? hash.slice(1) : hash; // "/home" or "/insights?..."
   return normalizePath(pathWithQuery);
 }
@@ -17,9 +15,7 @@ export function currentPath() {
 export function go(path) {
   const target = path.startsWith("/") ? path : "/" + path;
   const nextHash = "#" + target;
-  // keep querystring if provided in target
   if (window.location.hash === nextHash) {
-    // allow explicit same-route refreshes without duplicating normal hash navigation
     window.dispatchEvent(new Event("routechange"));
     return;
   }

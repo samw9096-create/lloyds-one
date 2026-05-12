@@ -1,3 +1,6 @@
+// Admin Edge Function for resetting/deleting demo runtime tables after
+// verifying the caller's Supabase auth session.
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {

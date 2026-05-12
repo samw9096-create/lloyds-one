@@ -21,7 +21,6 @@
   --dur-slow: 420ms;
 }
 
-/* Small eyebrow/kicker labels above primary titles are intentionally hidden app-wide. */
 .payments-kicker,
 .reels-kicker,
 .learn-reel-kicker,
@@ -902,7 +901,6 @@ textarea:focus {
 
 .primary-btn:active { transform: translateY(1px); }
 
-/* Confirmation overlay */
 .confirm-overlay {
   position: fixed;
   inset: 0;

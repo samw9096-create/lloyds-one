@@ -1,3 +1,6 @@
+// Supabase Edge Function that keeps the Gemini API key server-side while the
+// browser chatbot sends only a compact app snapshot and receives safe JSON.
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",

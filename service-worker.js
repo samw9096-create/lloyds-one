@@ -1,4 +1,4 @@
-// service-worker.js
+//  offline cache for the prototype. index.html currently unregisters service workers duirng load, so file  only used if service worker registration is enabled 
 
 const CACHE_NAME = "lloyds-one-cache-v63";
 

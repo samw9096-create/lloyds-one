@@ -1,3 +1,6 @@
+// Supabase Edge Function for AI Insights. It turns period totals/categories
+// into a short Gemini-generated analysis while keeping secrets off the client.
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",

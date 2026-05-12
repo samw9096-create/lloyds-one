@@ -1,3 +1,4 @@
+// supabase data retrieval and update
 import { supabase } from "./supabase.js";
 
 const DEMO_USER_ID = "demo_user_1";
@@ -10,6 +11,7 @@ const SUPABASE_TABLES = {
 };
 let supabaseSeedPromise = null;
 
+// fallback data in case supabase fails
 function isoDaysAgo(days, hour = 12) {
   const d = new Date();
   d.setDate(d.getDate() - days);
@@ -80,6 +82,7 @@ function seedState() {
   return { users, accounts, transactions, profiles };
 }
 
+// offline version is handled here in case connectivity is poor on the day of the showcase
 function getState() {
   try {
     const raw = localStorage.getItem(REMOTE_KEY);
@@ -95,6 +98,7 @@ function setState(state) {
   return state;
 }
 
+// Database row mappers isolate Supabase column naming from UI-facing objects.
 function mapDbTransaction(row) {
   if (!row) return null;
   return {
@@ -121,6 +125,7 @@ function mapDbProfile(row) {
   };
 }
 
+// checks before reading and writing to supabase
 async function ensureSupabaseSeeded() {
   if (supabaseSeedPromise) return supabaseSeedPromise;
   supabaseSeedPromise = (async () => {
@@ -567,6 +572,17 @@ export async function fetchDatasetProducts(limit = 12) {
 }
 
 export async function fetchDatasetCustomerProfiles(limit = 12) {
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("customer_id, display_name, city, nationality, monthly_income, income_band, marital_status, account_count, product_count, linked_products, latest_visit_date")
+      .eq("source", "dataset_customer_profiles")
+      .order("monthly_income", { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    if (Array.isArray(data) && data.length) return data;
+  } catch {}
+
   const items = [
     { customer_id: "70986212122", display_name: "Ms Jessica G.", city: "Teresastad", nationality: "British", monthly_income: 800, income_band: "£750-£999", marital_status: "Single", account_count: 5, product_count: 5, linked_products: "Arranged Overdraft, Classic, Club Lloyds Advantage Saver, Easy Saver, Lloyds Credit Card", latest_visit_date: "2025-12-28" },
     { customer_id: "70986212129", display_name: "Ms Georgia P.", city: "North Lindseyton", nationality: "British", monthly_income: 800, income_band: "£750-£999", marital_status: "Single", account_count: 4, product_count: 4, linked_products: "Arranged Overdraft, Club Lloyds, Club Lloyds Advantage Saver, Lloyds Credit Card", latest_visit_date: "2025-12-30" },
@@ -575,7 +591,85 @@ export async function fetchDatasetCustomerProfiles(limit = 12) {
   return items.slice(0, limit);
 }
 
+export async function fetchMoneyMinutesModules(limit = 24) {
+  try {
+    const { data, error } = await supabase
+      .from("money_minutes")
+      .select("video_id, title, description, difficulty_rating, difficulty_level, quiz_ids, video_src, content_type, sort_order")
+      .order("sort_order", { ascending: true })
+      .limit(limit);
+    if (error) throw error;
+    if (Array.isArray(data) && data.length) {
+      return data.map((item) => ({
+        id: item.video_id,
+        title: item.title,
+        desc: item.description,
+        quizzes: Array.isArray(item.quiz_ids) ? item.quiz_ids : [],
+        difficulty: item.difficulty_rating || "Beginner",
+        difficultyLevel: Number(item.difficulty_level || 1),
+        video: item.video_src || "./Video-17.mp4"
+      }));
+    }
+  } catch {}
+  return [];
+}
+
+export async function fetchDealNestItems(limit = 100) {
+  try {
+    const { data, error } = await supabase
+      .from("deal_nest")
+      .select("deal_id, source_type, title, description, interests, category, brand, discount, code, expires, popularity, accent")
+      .eq("source_type", "student_offer")
+      .order("popularity", { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    if (Array.isArray(data) && data.length) {
+      return data.map((item) => ({
+        id: item.deal_id,
+        brand: item.brand,
+        title: item.title,
+        discount: item.discount,
+        category: item.category,
+        summary: item.description,
+        code: item.code,
+        expires: item.expires,
+        popularity: Number(item.popularity || 0),
+        interestTags: String(item.interests || "").split(",").map((tag) => tag.trim()).filter(Boolean),
+        accent: item.accent
+      }));
+    }
+  } catch {}
+  return [];
+}
+
 export async function fetchDatasetRecentActivity(limit = 10) {
+  try {
+    const { data, error } = await supabase
+      .from("transactions")
+      .select("id, account_id, customer_name, city, product_name, transaction_date, transaction_time, transaction_amount, payment_type, payment_type_description, transaction_category, transaction_reference")
+      .eq("source", "dataset_recent_activity")
+      .order("transaction_date", { ascending: false })
+      .order("transaction_time", { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    if (Array.isArray(data) && data.length) {
+      return data.map((item) => ({
+        transaction_id: item.id,
+        account_id: item.account_id,
+        customer_name: item.customer_name,
+        city: item.city,
+        product_name: item.product_name,
+        transaction_date: item.transaction_date,
+        transaction_time: item.transaction_time,
+        transaction_amount: Number(item.transaction_amount || 0),
+        payment_type: item.payment_type,
+        payment_type_description: item.payment_type_description,
+        transaction_category: item.transaction_category,
+        transaction_reference: item.transaction_reference
+      }));
+    }
+  } catch {}
+
   const items = [
     { transaction_id: "demo_dataset_tx_1", account_id: "2033000", customer_name: "Ms Ruth G.", city: "New Maryton", product_name: "Classic", transaction_date: "2025-12-31", transaction_time: "16:14:47", transaction_amount: 587.92, payment_type: "FP", payment_type_description: "Faster Payment - Bank Transfer", transaction_category: "Monthly income", transaction_reference: "CAMPUS JOB PAYMENT" },
     { transaction_id: "demo_dataset_tx_2", account_id: "2033101", customer_name: "Ms Aimee T.", city: "Port Lauren", product_name: "Easy Saver", transaction_date: "2025-12-31", transaction_time: "14:02:11", transaction_amount: -42.5, payment_type: "DD", payment_type_description: "Direct Debit", transaction_category: "Food shopping", transaction_reference: "TESCO STORES" },
