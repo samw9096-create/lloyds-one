@@ -5778,6 +5778,7 @@ function initMoneyMinutes() {
         await video.play();
       } catch {
         // ensures the video autoplays whilst being muted
+      }
       updateIcon();
     };
 
