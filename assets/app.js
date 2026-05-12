@@ -148,7 +148,7 @@ async function render() {
     setBottomNavVisible(navRoutes.has(path));
     setBottomNavActive(mapNavPath(path));
 
-    const publicRoutes = new Set(["/login", "/splash"]);
+    const publicRoutes = new Set(["/login", "/splash", "/onboarding"]);
     const auth = await getAuthState();
     if (!auth?.signedIn && !publicRoutes.has(path)) {
       go("/login");

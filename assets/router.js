@@ -6,8 +6,8 @@ export function normalizePath(path) {
 }
 
 export function currentPath() {
-  // default to splash if no hash
-  const hash = window.location.hash || "#/splash";
+  // default to onboarding if no hash
+  const hash = window.location.hash || "#/onboarding";
   const pathWithQuery = hash.startsWith("#") ? hash.slice(1) : hash; // "/home" or "/insights?..."
   return normalizePath(pathWithQuery);
 }
