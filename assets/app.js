@@ -78,10 +78,6 @@ async function loadView(path) {
     const res = await fetch(viewUrl, { cache: "no-store" });
     if (!res.ok) {
       console.error("Failed to fetch view:", htmlPath, res.status);
-      if (window.location.protocol === "file:") {
-        renderFatalState("This app must be served over HTTP/HTTPS to load the page templates correctly. Please use a local web server or Live Server.");
-        return;
-      }
       go("/home");
       return;
     }
@@ -96,10 +92,6 @@ async function loadView(path) {
     await initView(path);
   } catch (error) {
     console.error("loadView failed:", path, error);
-    if (window.location.protocol === "file:") {
-      renderFatalState("This app must be served over HTTP/HTTPS to load the page templates correctly. Please use a local web server or Live Server.");
-      return;
-    }
     if (path !== "/home") {
       go("/home");
       return;
@@ -107,7 +99,6 @@ async function loadView(path) {
     renderFatalState("The page could not be initialised after refresh.");
   }
 }
-
 function isDemoSessionUnlocked() {
   return sessionStorage.getItem("demo_app_unlocked") === "1";
 }

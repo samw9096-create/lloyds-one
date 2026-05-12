@@ -6,8 +6,8 @@ export function normalizePath(path) {
 }
 
 export function currentPath() {
-  // default to splash on the web, but home when opening directly from the file system
-  const hash = window.location.hash || (window.location.protocol === "file:" ? "#/home" : "#/splash");
+  // default to splash if no hash
+  const hash = window.location.hash || "#/splash";
   const pathWithQuery = hash.startsWith("#") ? hash.slice(1) : hash; // "/home" or "/insights?..."
   return normalizePath(pathWithQuery);
 }
